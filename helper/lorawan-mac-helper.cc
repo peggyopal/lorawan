@@ -50,8 +50,11 @@ LorawanMacHelper::SetDeviceType (enum DeviceType dt)
     case GW:
       m_mac.SetTypeId ("ns3::GatewayLorawanMac");
       break;
-    case ED:
+    case ED_A:
       m_mac.SetTypeId ("ns3::EndDeviceLorawanMac");
+      break;
+    case ED_C:
+      m_mac.SetTypeId ("ns3::EndDeviceCLorawanMac");
       break;
     }
   m_deviceType = dt;
@@ -78,17 +81,40 @@ LorawanMacHelper::Create (Ptr<Node> node, Ptr<NetDevice> device) const
   mac->SetDevice (device);
 
   // If we are operating on an end device, add an address to it
-  if (m_deviceType == ED && m_addrGen != 0)
+  if (m_deviceType == ED_A && m_addrGen != 0)
     {
       mac->GetObject<EndDeviceLorawanMac> ()->SetDeviceAddress
+        (m_addrGen->NextAddress ());
+    }
+  else if (m_deviceType == ED_C && m_addrGen != 0)
+    {
+      mac->GetObject<EndDeviceCLorawanMac> ()->SetDeviceAddress
         (m_addrGen->NextAddress ());
     }
 
   // Add a basic list of channels based on the region where the device is
   // operating
-  if (m_deviceType == ED)
+  std::cout << m_deviceType << std::endl;
+  if (m_deviceType == ED_A)
     {
       Ptr<EndDeviceLorawanMac> edMac = mac->GetObject<EndDeviceLorawanMac> ();
+      switch (m_region)
+        {
+          case LorawanMacHelper::EU:
+          {
+            ConfigureForEuRegion (edMac);
+            break;
+          }
+          default:
+          {
+            NS_LOG_ERROR ("This region isn't supported yet!");
+            break;
+          }
+        }
+    }
+  else if (m_deviceType == ED_C)
+    {
+      Ptr<EndDeviceCLorawanMac> edMac = mac->GetObject<EndDeviceCLorawanMac> ();
       switch (m_region)
         {
         case LorawanMacHelper::EU:
@@ -158,6 +184,37 @@ LorawanMacHelper::ConfigureForEuRegion (Ptr<EndDeviceLorawanMac> edMac) const
   //////////////////////////////////////
   edMac->SetSecondReceiveWindowDataRate (0);
   edMac->SetSecondReceiveWindowFrequency (869.525);
+}
+
+void
+LorawanMacHelper::ConfigureForEuRegion (Ptr<EndDeviceCLorawanMac> edMac) const
+{
+  NS_LOG_FUNCTION_NOARGS ();
+
+  ApplyCommonEuConfigurations (edMac);
+
+  /////////////////////////////////////////////////////
+  // TxPower -> Transmission power in dBm conversion //
+  /////////////////////////////////////////////////////
+  edMac->SetTxDbmForTxPower (std::vector<double> {16, 14, 12, 10, 8, 6, 4, 2});
+
+  ////////////////////////////////////////////////////////////
+  // Matrix to know which DataRate the GW will respond with //
+  ////////////////////////////////////////////////////////////
+  LorawanMac::ReplyDataRateMatrix matrix = {{{{0,0,0,0,0,0}},
+                                          {{1,0,0,0,0,0}},
+                                          {{2,1,0,0,0,0}},
+                                          {{3,2,1,0,0,0}},
+                                          {{4,3,2,1,0,0}},
+                                          {{5,4,3,2,1,0}},
+                                          {{6,5,4,3,2,1}},
+                                          {{7,6,5,4,3,2}}}};
+  edMac->SetReplyDataRateMatrix (matrix);
+
+  /////////////////////
+  // Preamble length //
+  /////////////////////
+  edMac->SetNPreambleSymbols (8);
 }
 
 void

@@ -27,6 +27,7 @@
 #include "ns3/lorawan-mac.h"
 #include "ns3/lora-device-address-generator.h"
 #include "ns3/end-device-lorawan-mac.h"
+#include "ns3/end-device-c-lorawan-mac.h"
 #include "ns3/gateway-lorawan-mac.h"
 #include "ns3/node-container.h"
 #include "ns3/random-variable-stream.h"
@@ -43,7 +44,8 @@ public:
   enum DeviceType
   {
     GW,
-    ED
+    ED_A,
+    ED_C
   };
 
   /**
@@ -126,6 +128,11 @@ private:
    * Perform region-specific configurations for the 868 MHz EU band.
    */
   void ConfigureForEuRegion (Ptr<EndDeviceLorawanMac> edMac) const;
+
+  /**
+   * Perform region-specific configurations for the 868 MHz EU band.
+   */
+  void ConfigureForEuRegion (Ptr<EndDeviceCLorawanMac> edMac) const;
 
   /**
    * Perform region-specific configurations for the 868 MHz EU band.
