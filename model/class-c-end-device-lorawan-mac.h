@@ -24,6 +24,20 @@
 namespace ns3 {
 namespace lorawan {
 
+
+/**
+ * Class representing the MAC layer of a Class C LoRaWAN device.
+ */
+class ClassAEndDeviceLorawanMac : public EndDeviceLorawanMac
+{
+public:
+  static TypeId GetTypeId (void);
+
+  ClassAEndDeviceLorawanMac ();
+  virtual ~ClassAEndDeviceLorawanMac ();
+
+}; /* ClassAEndDeviceLorawanMac */
+
 } /* namespace lorawan */
 } /* namespace ns3 */
 
