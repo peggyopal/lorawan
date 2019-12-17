@@ -52,6 +52,8 @@ LorawanMacHelper::SetDeviceType (enum DeviceType dt)
     case ED_A:
       m_mac.SetTypeId ("ns3::ClassAEndDeviceLorawanMac");
       break;
+    case ED_C:
+      break;
     }
   m_deviceType = dt;
 }

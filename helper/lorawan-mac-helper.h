@@ -40,7 +40,7 @@ public:
   /**
    * Define the kind of device. Can be either GW (Gateway) or ED (End Device).
    */
-  enum DeviceType { GW, ED_A };
+  enum DeviceType { GW, ED_A, ED_C };
 
   /**
    * Define the operational region.
