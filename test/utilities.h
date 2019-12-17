@@ -40,7 +40,7 @@ struct NetworkComponents
 Ptr<LoraChannel> CreateChannel (void);
 
 NodeContainer CreateEndDevices (int nDevices, MobilityHelper mobility,
-                                Ptr<LoraChannel> channel);
+                                Ptr<LoraChannel> channel, int dt);
 
 NodeContainer CreateGateways (int nGateways, MobilityHelper mobility,
                               Ptr<LoraChannel> channel);

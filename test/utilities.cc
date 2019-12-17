@@ -17,7 +17,7 @@ CreateChannel (void)
 }
 
 NodeContainer
-CreateEndDevices (int nDevices, MobilityHelper mobility, Ptr<LoraChannel> channel)
+CreateEndDevices (int nDevices, MobilityHelper mobility, Ptr<LoraChannel> channel, int dt = 0)
 {
   // Create the LoraPhyHelper
   LoraPhyHelper phyHelper = LoraPhyHelper ();
@@ -38,7 +38,14 @@ CreateEndDevices (int nDevices, MobilityHelper mobility, Ptr<LoraChannel> channe
 
   // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A);
+  if (dt == 0)
+    {
+      macHelper.SetDeviceType (LorawanMacHelper::ED_A);
+    }
+  else if (dt == 2)
+    {
+      macHelper.SetDeviceType (LorawanMacHelper::ED_C);
+    }
   helper.Install (phyHelper, macHelper, endDevices);
 
   return endDevices;
