@@ -55,7 +55,7 @@ GetMacLayerFromNode (Ptr<Node> n)
   return n->GetDevice (0)->GetObject<LoraNetDevice> ()->GetMac ()->GetObject<T> ();
 }
 
-NetworkComponents InitializeNetwork (int nDevices, int nGateways);
+NetworkComponents InitializeNetwork (int nDevices, int nGateways, int edt = 0);
 }
 
 }

@@ -17,7 +17,7 @@ CreateChannel (void)
 }
 
 NodeContainer
-CreateEndDevices (int nDevices, MobilityHelper mobility, Ptr<LoraChannel> channel, int dt = 0)
+CreateEndDevices (int nDevices, MobilityHelper mobility, Ptr<LoraChannel> channel, int dt)
 {
   // Create the LoraPhyHelper
   LoraPhyHelper phyHelper = LoraPhyHelper ();
@@ -96,7 +96,7 @@ CreateNetworkServer (NodeContainer endDevices, NodeContainer gateways)
 }
 
 NetworkComponents
-InitializeNetwork (int nDevices, int nGateways)
+InitializeNetwork (int nDevices, int nGateways, int edt)
 {
   // This function sets up a network with some devices and some gateways, and
   // returns the created nodes through a NetworkComponents struct.
@@ -110,7 +110,7 @@ InitializeNetwork (int nDevices, int nGateways)
                                  "Y", DoubleValue (0.0));
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
 
-  NodeContainer endDevices = CreateEndDevices (nDevices, mobility, channel);
+  NodeContainer endDevices = CreateEndDevices (nDevices, mobility, channel, edt);
 
   NodeContainer gateways = CreateGateways (nGateways, mobility, channel);
 
