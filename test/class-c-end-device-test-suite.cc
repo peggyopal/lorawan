@@ -8,6 +8,7 @@
 
 // Include headers of classes to test
 #include "ns3/log.h"
+#include "utilities.h"
 #include "ns3/class-c-end-device-lorawan-mac.h"
 
 // An essential include is test.h
@@ -49,4 +50,9 @@ void
 ClassCEndDeviceTestSuite::DoRun (void)
 {
   NS_LOG_DEBUG ("ClassCEndDeviceTestSuite");
+
+  // Create a bunch of actual devices
+  NetworkComponents components = InitializeNetwork (10, 0);
+
+  NodeContainer endDevices = components.endDevices;
 }
