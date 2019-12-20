@@ -116,12 +116,7 @@ private:
   /**
    * Perform region-specific configurations for the 868 MHz EU band.
    */
-  void ConfigureForEuRegion (Ptr<ClassAEndDeviceLorawanMac> edMac) const;
-
-  /**
-   * Perform region-specific configurations for the 868 MHz EU band.
-   */
-  void ConfigureForEuRegion (Ptr<ClassCEndDeviceLorawanMac> edMac) const;
+  void ConfigureForEuRegion (Ptr<EndDeviceLorawanMac> edMac) const;
 
   /**
    * Perform region-specific configurations for the 868 MHz EU band.
@@ -137,12 +132,7 @@ private:
   /**
    * Perform region-specific configurations for the ALOHA band.
    */
-  void ConfigureForAlohaRegion (Ptr<ClassAEndDeviceLorawanMac> edMac) const;
-
-  /**
-   * Perform region-specific configurations for the ALOHA band.
-   */
-  void ConfigureForAlohaRegion (Ptr<ClassCEndDeviceLorawanMac> edMac) const;
+  void ConfigureForAlohaRegion (Ptr<EndDeviceLorawanMac> edMac) const;
 
   /**
    * Perform region-specific configurations for the ALOHA band.
