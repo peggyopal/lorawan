@@ -123,5 +123,21 @@ ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow ()
   NS_LOG_DEBUG ("CloseSecondReceiveWindow");
 }
 
+/////////////////////////
+// Getters and Setters //
+/////////////////////////
+
+void
+ClassCEndDeviceLorawanMac::SetSecondReceiveWindowDataRate (uint8_t dataRate)
+{
+  m_secondReceiveWindowDataRate = dataRate;
+}
+
+void
+ClassCEndDeviceLorawanMac::SetSecondReceiveWindowFrequency (double frequencyMHz)
+{
+  m_secondReceiveWindowFrequency = frequencyMHz;
+}
+
 } /* namespace lorawan */
 } /* namespace ns3 */
