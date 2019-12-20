@@ -26,6 +26,7 @@
 #include "ns3/lora-phy.h"
 #include "ns3/lorawan-mac.h"
 #include "ns3/class-a-end-device-lorawan-mac.h"
+#include "ns3/class-c-end-device-lorawan-mac.h"
 #include "ns3/lora-device-address-generator.h"
 #include "ns3/gateway-lorawan-mac.h"
 #include "ns3/node-container.h"
@@ -120,6 +121,11 @@ private:
   /**
    * Perform region-specific configurations for the 868 MHz EU band.
    */
+  void ConfigureForEuRegion (Ptr<ClassCEndDeviceLorawanMac> edMac) const;
+
+  /**
+   * Perform region-specific configurations for the 868 MHz EU band.
+   */
   void ConfigureForEuRegion (Ptr<GatewayLorawanMac> gwMac) const;
 
   /**
@@ -132,6 +138,11 @@ private:
    * Perform region-specific configurations for the ALOHA band.
    */
   void ConfigureForAlohaRegion (Ptr<ClassAEndDeviceLorawanMac> edMac) const;
+
+  /**
+   * Perform region-specific configurations for the ALOHA band.
+   */
+  void ConfigureForAlohaRegion (Ptr<ClassCEndDeviceLorawanMac> edMac) const;
 
   /**
    * Perform region-specific configurations for the ALOHA band.
