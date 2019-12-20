@@ -20,9 +20,9 @@ using namespace lorawan;
 
 NS_LOG_COMPONENT_DEFINE ("ClassCEndDeviceLorawanMacTestSuite");
 
-/////////////////////////////
-// EndDeviceStatus testing //
-/////////////////////////////
+///////////////////////////////////////////
+// LorawanMacHelperSetDeviceType testing //
+///////////////////////////////////////////
 
 class InitializeLorawanMacClassCEndDeviceTest : public TestCase
 {
@@ -36,8 +36,8 @@ private:
 
 // Add some help text to this case to describe what it is intended to test
 InitializeLorawanMacClassCEndDeviceTest::InitializeLorawanMacClassCEndDeviceTest ()
-  : TestCase ("Verify that the Lorawan Mac Helper Initalizes Device Type"
-              "to ED_C")
+  : TestCase ("Verify that LorawanMacHelper Initalizes the Device Type to be "
+              "ED_C")
 {
 }
 
@@ -60,6 +60,90 @@ InitializeLorawanMacClassCEndDeviceTest::DoRun (void)
 }
 
 
+///////////////////////////////////////////////////
+// CreateNodeContainerOfOneClassCDeviceTest Test //
+///////////////////////////////////////////////////
+class CreateNodeContainerOfOneClassCDeviceTest : public TestCase
+{
+public:
+  CreateNodeContainerOfOneClassCDeviceTest ();
+  virtual ~CreateNodeContainerOfOneClassCDeviceTest ();
+
+private:
+  virtual void DoRun (void);
+};
+
+CreateNodeContainerOfOneClassCDeviceTest::CreateNodeContainerOfOneClassCDeviceTest ()
+  : TestCase ("Verify creating a NodeContainer that contains one "
+              "ClassCEndDeviceLorawanMac device")
+{
+}
+
+CreateNodeContainerOfOneClassCDeviceTest::~CreateNodeContainerOfOneClassCDeviceTest ()
+{
+}
+void
+CreateNodeContainerOfOneClassCDeviceTest::DoRun (void)
+{
+  NS_LOG_DEBUG ("ClassCGetTypeIdTest");
+
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+  Ptr<ClassCEndDeviceLorawanMac> edMac = endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<ClassCEndDeviceLorawanMac>();
+  NS_TEST_ASSERT_MSG_NE (edMac, 0, "fail");
+
+  NodeContainer::Iterator it;
+  int i = 0;
+  for (it = endDevices.Begin (); it != endDevices.End (); it++)
+    {
+      i++;
+    }
+  NS_TEST_ASSERT_MSG_EQ(i, 1, "More than one ED was created.");
+}
+
+/////////////////////////////////////////////////////
+// CreateNodeContainerOfManyClassCDeviceTests Test //
+/////////////////////////////////////////////////////
+class CreateNodeContainerOfManyClassCDeviceTests : public TestCase
+{
+public:
+  CreateNodeContainerOfManyClassCDeviceTests ();
+  virtual ~CreateNodeContainerOfManyClassCDeviceTests ();
+
+private:
+  virtual void DoRun (void);
+};
+
+CreateNodeContainerOfManyClassCDeviceTests::CreateNodeContainerOfManyClassCDeviceTests ()
+  : TestCase ("Verify creating a NodeContainer that contains many "
+              "ClassCEndDeviceLorawanMac devices")
+{
+}
+
+CreateNodeContainerOfManyClassCDeviceTests::~CreateNodeContainerOfManyClassCDeviceTests ()
+{
+}
+void
+CreateNodeContainerOfManyClassCDeviceTests::DoRun (void)
+{
+  NS_LOG_DEBUG ("ClassCGetTypeIdTest");
+
+  NetworkComponents components = InitializeNetwork (10, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+  Ptr<ClassCEndDeviceLorawanMac> edMac = endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<ClassCEndDeviceLorawanMac>();
+  NS_TEST_ASSERT_MSG_NE (edMac, 0, "fail");
+
+  NodeContainer::Iterator it;
+  int i = 0;
+  for (it = endDevices.Begin (); it != endDevices.End (); it++)
+    {
+      i++;
+    }
+  NS_TEST_ASSERT_MSG_EQ(i, 10, "More than one ED was created.");
+}
+
 /**************
  * Test Suite *
  **************/
@@ -80,16 +164,11 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
 {
   LogComponentEnable ("ClassCEndDeviceLorawanMacTestSuite", LOG_LEVEL_DEBUG);
 
-  // LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
-  // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
-  // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-  // LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
-  // LogComponentEnable ("NetworkControllerComponent", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LoraNetDevice", LOG_LEVEL_ALL);
-  // LogComponentEnable ("GatewayLorawanMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
-  // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
-  // LogComponentEnable ("EndDeviceStatus", LOG_LEVEL_ALL);
+  LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
+  LogComponentEnable ("LorawanMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("LoraNetDevice", LOG_LEVEL_ALL);
+  LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
+  LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
 
   // LogComponentEnableAll (LOG_PREFIX_FUNC);
   // LogComponentEnableAll (LOG_PREFIX_NODE);
@@ -97,6 +176,8 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
 
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfOneClassCDeviceTest, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
