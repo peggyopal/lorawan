@@ -63,5 +63,41 @@ ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
   NS_LOG_FUNCTION_NOARGS ();
 }
 
+//////////////////////////
+//  Receiving methods   //
+//////////////////////////
+
+void
+ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow ()
+{
+  NS_LOG_FUNCTION_NOARGS ();
+
+  NS_LOG_DEBUG ("OpenFirstReceiveWindow");
+}
+
+void
+ClassCEndDeviceLorawanMac::CloseFirstReceiveWindow ()
+{
+  NS_LOG_FUNCTION_NOARGS ();
+
+  NS_LOG_DEBUG ("CloseFirstReceiveWindow");
+}
+
+void
+ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow ()
+{
+  NS_LOG_FUNCTION_NOARGS ();
+
+  NS_LOG_DEBUG ("OpenSecondReceiveWindow");
+}
+
+void
+ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow ()
+{
+  NS_LOG_FUNCTION_NOARGS ();
+
+  NS_LOG_DEBUG ("CloseSecondReceiveWindow");
+}
+
 } /* namespace lorawan */
 } /* namespace ns3 */

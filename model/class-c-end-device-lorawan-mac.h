@@ -38,6 +38,30 @@ public:
   ClassCEndDeviceLorawanMac ();
   virtual ~ClassCEndDeviceLorawanMac ();
 
+  //////////////////////////
+  //  Receiving methods   //
+  //////////////////////////
+
+  /**
+   * Perform operations needed to open the first receive window.
+   */
+  void OpenFirstReceiveWindow (void);
+
+  /**
+   * Perform operations needed to close the first receive window.
+   */
+  void CloseFirstReceiveWindow (void);
+
+  /**
+   * Perform operations needed to open the second receive window.
+   */
+  void OpenSecondReceiveWindow (void);
+
+  /**
+   * Perform operations needed to close the second receive window.
+   */
+  void CloseSecondReceiveWindow (void);
+
 private:
   /**
    * The interval between when a packet is done sending and when the first
