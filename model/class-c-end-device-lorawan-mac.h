@@ -18,27 +18,29 @@
  * Author: Peggy Anderson <peggy.anderson@usask.ca>
  */
 
-#ifndef CLASS_A_END_DEVICE_LORAWAN_MAC_H
-#define CLASS_A_END_DEVICE_LORAWAN_MAC_H
+#ifndef CLASS_C_END_DEVICE_LORAWAN_MAC_H
+#define CLASS_C_END_DEVICE_LORAWAN_MAC_H
+
+#include "ns3/lorawan-mac.h"
+#include "ns3/end-device-lorawan-mac.h"
 
 namespace ns3 {
 namespace lorawan {
 
-
 /**
  * Class representing the MAC layer of a Class C LoRaWAN device.
  */
-class ClassAEndDeviceLorawanMac : public EndDeviceLorawanMac
+class ClassCEndDeviceLorawanMac : public EndDeviceLorawanMac
 {
 public:
   static TypeId GetTypeId (void);
 
-  ClassAEndDeviceLorawanMac ();
-  virtual ~ClassAEndDeviceLorawanMac ();
+  ClassCEndDeviceLorawanMac ();
+  virtual ~ClassCEndDeviceLorawanMac ();
 
-}; /* ClassAEndDeviceLorawanMac */
+}; /* ClassCEndDeviceLorawanMac */
 
 } /* namespace lorawan */
 } /* namespace ns3 */
 
-#endif /* CLASS_A_END_DEVICE_LORAWAN_MAC_H */
+#endif /* CLASS_C_END_DEVICE_LORAWAN_MAC_H */

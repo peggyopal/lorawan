@@ -18,8 +18,35 @@
  * Author: Peggy Anderson <peggy.anderson@usask.ca>
  */
 
+#include "ns3/class-c-end-device-lorawan-mac.h"
+#include "ns3/log.h"
+
 namespace ns3 {
 namespace lorawan {
+
+NS_LOG_COMPONENT_DEFINE ("ClassCEndDeviceLorawanMac");
+
+NS_OBJECT_ENSURE_REGISTERED (ClassCEndDeviceLorawanMac);
+
+TypeId
+ClassCEndDeviceLorawanMac::GetTypeId (void)
+{
+static TypeId tid = TypeId ("ns3::ClassCEndDeviceLorawanMac")
+  .SetParent<EndDeviceLorawanMac> ()
+  .SetGroupName ("lorawan")
+  .AddConstructor<ClassCEndDeviceLorawanMac> ();
+return tid;
+}
+
+ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
+{
+  NS_LOG_FUNCTION (this);
+}
+
+ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
+{
+  NS_LOG_FUNCTION_NOARGS ();
+}
 
 } /* namespace lorawan */
 } /* namespace ns3 */
