@@ -81,24 +81,6 @@ public:
    */
   void CloseSecondReceiveWindow (void);
 
-  /////////////////////////
-  // Getters and Setters //
-  /////////////////////////
-
-  /**
-   * Set the Data Rate to be used in the second receive window.
-   *
-   * \param dataRate The Data Rate.
-   */
-  void SetSecondReceiveWindowDataRate (uint8_t dataRate);
-
-  /**
-   * Set the frequency that will be used for the second receive window.
-   *
-   * \param frequencyMHz the Frequency.
-   */
-  void SetSecondReceiveWindowFrequency (double frequencyMHz);
-
 private:
   /**
    * The interval between when a packet is done sending and when the first
@@ -145,16 +127,6 @@ private:
    * successful.
    */
   EventId m_secondReceiveWindow;
-
-  /**
-   * The frequency to listen on for the second receive window.
-   */
-  double m_secondReceiveWindowFrequency;
-
-  /**
-   * The Data Rate to listen for during the second downlink transmission.
-   */
-  uint8_t m_secondReceiveWindowDataRate;
 
 }; /* ClassCEndDeviceLorawanMac */
 
