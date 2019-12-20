@@ -74,6 +74,11 @@ public:
   void SetDeviceType (enum DeviceType dt);
 
   /**
+   * Get the kind of MAC this helper is.
+   */
+  enum LorawanMacHelper::DeviceType GetDeviceType (void);
+
+  /**
    * Set the region in which the device is to operate.
    */
   void SetRegion (enum Regions region);

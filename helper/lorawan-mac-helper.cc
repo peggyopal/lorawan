@@ -59,6 +59,12 @@ LorawanMacHelper::SetDeviceType (enum DeviceType dt)
   m_deviceType = dt;
 }
 
+enum LorawanMacHelper::DeviceType
+LorawanMacHelper::GetDeviceType (void)
+{
+  return m_deviceType;
+}
+
 void
 LorawanMacHelper::SetAddressGenerator (Ptr<LoraDeviceAddressGenerator> addrGen)
 {
