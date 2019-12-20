@@ -103,6 +103,26 @@ public:
    */
   virtual void TxFinished (Ptr<const Packet> packet);
 
+  /**
+   * Perform operations needed to open the first receive window.
+   */
+  void OpenFirstReceiveWindow (void);
+
+  /**
+   * Perform operations needed to open the second receive window.
+   */
+  void OpenSecondReceiveWindow (void);
+
+  /**
+   * Perform operations needed to close the first receive window.
+   */
+  void CloseFirstReceiveWindow (void);
+
+  /**
+   * Perform operations needed to close the second receive window.
+   */
+  void CloseSecondReceiveWindow (void);
+
   /////////////////////////
   // Getters and Setters //
   /////////////////////////
@@ -172,6 +192,41 @@ public:
    * \return This device's address.
    */
   LoraDeviceAddress GetDeviceAddress (void);
+
+  /**
+   * Get the Data Rate that will be used in the first receive window.
+   *
+   * \return The Data Rate
+   */
+  uint8_t GetFirstReceiveWindowDataRate (void);
+
+  /**
+   * Set the frequency that will be used for the second receive window.
+   *
+   * \param frequencyMHz the Frequency.
+   */
+  void SetSecondReceiveWindowFrequency (double frequencyMHz);
+
+  /**
+   * Get the Data Rate that will be used in the second receive window.
+   *
+   * \return The Data Rate
+   */
+  uint8_t GetSecondReceiveWindowDataRate (void);
+
+  /**
+   * Set the Data Rate to be used in the second receive window.
+   *
+   * \param dataRate The Data Rate.
+   */
+  void SetSecondReceiveWindowDataRate (uint8_t dataRate);
+
+  /**
+   * Get the frequency that is used for the second receive window.
+   *
+   * @return The frequency, in MHz
+   */
+  double GetSecondReceiveWindowFrequency (void);
 
   /**
    * Set a value for the RX1DROffset parameter.
@@ -380,12 +435,6 @@ protected:
   LoraDeviceAddress m_address;
 
   /**
-   * Find the minimum waiting time before the next possible transmission based
-   * on End Device's Class Type.
-   */
-  virtual Time GetNextClassTransmissionDelay (Time waitingTime);
-
-  /**
    * Find a suitable channel for transmission. The channel is chosen among the
    * ones that are available in the ED's LogicalLoraChannel, based on their duty
    * cycle limitations.
@@ -419,6 +468,53 @@ protected:
    * the channel list.
    */
   Ptr<UniformRandomVariable> m_uniformRV;
+   * The frequency to listen on for the second receive window.
+   */
+  double m_secondReceiveWindowFrequency;
+
+  /**
+   * The Data Rate to listen for during the second downlink transmission.
+   */
+  uint8_t m_secondReceiveWindowDataRate;
+
+  /**
+   * The interval between when a packet is done sending and when the first
+   * receive window is opened.
+   */
+  Time m_receiveDelay1;
+
+  /**
+   * The interval between when a packet is done sending and when the second
+   * receive window is opened.
+   */
+  Time m_receiveDelay2;
+
+  /**
+   * The event of the closing the first receive window.
+   *
+   * This Event will be canceled if there's a successful reception of a packet.
+   */
+  EventId m_closeFirstWindow;
+
+  /**
+   * The event of the closing the second receive window.
+   *
+   * This Event will be canceled if there's a successful reception of a packet.
+   */
+  EventId m_closeSecondWindow;
+
+  /**
+   * The event of the second receive window opening.
+   *
+   * This Event is used to cancel the second window in case the first one is
+   * successful.
+   */
+  EventId m_secondReceiveWindow;
+
+  /**
+   * The RX1DROffset parameter value
+   */
+  uint8_t m_rx1DrOffset;
 
   /////////////////
   //  Callbacks  //
@@ -492,6 +588,7 @@ private:
   LorawanMacHeader::MType m_mType;
 
   uint8_t m_currentFCnt;
+
 };
 
 
