@@ -38,24 +38,9 @@ static TypeId tid = TypeId ("ns3::ClassCEndDeviceLorawanMac")
 return tid;
 }
 
-ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac () :
-  // LoraWAN default
-  m_receiveDelay1 (Seconds (1)),
-  // LoraWAN default
-  m_receiveDelay2 (Seconds (2)),
-  m_rx1DrOffset (0)
+ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac () 
 {
   NS_LOG_FUNCTION (this);
-
-  // Void the two receiveWindow events
-  m_openFirstWindow = EventId ();
-  m_openFirstWindow.Cancel ();
-  m_closeFirstWindow = EventId ();
-  m_closeFirstWindow.Cancel ();
-  m_closeSecondWindow = EventId ();
-  m_closeSecondWindow.Cancel ();
-  m_secondReceiveWindow = EventId ();
-  m_secondReceiveWindow.Cancel ();
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
@@ -89,38 +74,6 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   NS_LOG_FUNCTION (this << packet);
 
   NS_LOG_DEBUG ("TxFinished");
-}
-
-void
-ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow ()
-{
-  NS_LOG_FUNCTION_NOARGS ();
-
-  NS_LOG_DEBUG ("OpenFirstReceiveWindow");
-}
-
-void
-ClassCEndDeviceLorawanMac::CloseFirstReceiveWindow ()
-{
-  NS_LOG_FUNCTION_NOARGS ();
-
-  NS_LOG_DEBUG ("CloseFirstReceiveWindow");
-}
-
-void
-ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow ()
-{
-  NS_LOG_FUNCTION_NOARGS ();
-
-  NS_LOG_DEBUG ("OpenSecondReceiveWindow");
-}
-
-void
-ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow ()
-{
-  NS_LOG_FUNCTION_NOARGS ();
-
-  NS_LOG_DEBUG ("CloseSecondReceiveWindow");
 }
 
 } /* namespace lorawan */
