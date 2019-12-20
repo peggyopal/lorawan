@@ -38,6 +38,53 @@ public:
   ClassCEndDeviceLorawanMac ();
   virtual ~ClassCEndDeviceLorawanMac ();
 
+private:
+  /**
+   * The interval between when a packet is done sending and when the first
+   * receive window is opened.
+   */
+  Time m_receiveDelay1;
+
+  /**
+   * The interval between when a packet is done sending and when the second
+   * receive window is opened.
+   */
+  Time m_receiveDelay2;
+
+  /**
+   * The RX1DROffset parameter value
+   */
+  uint8_t m_rx1DrOffset;
+
+  /**
+   * The event of the closing the first receive window.
+   *
+   * This Event will be canceled if there's a successful reception of a packet.
+   */
+  EventId m_openFirstWindow;
+
+  /**
+   * The event of the closing the first receive window.
+   *
+   * This Event will be canceled if there's a successful reception of a packet.
+   */
+  EventId m_closeFirstWindow;
+
+  /**
+   * The event of the closing the second receive window.
+   *
+   * This Event will be canceled if there's a successful reception of a packet.
+   */
+  EventId m_closeSecondWindow;
+
+  /**
+   * The event of the second receive window opening.
+   *
+   * This Event is used to cancel the second window in case the first one is
+   * successful.
+   */
+  EventId m_secondReceiveWindow;
+
 }; /* ClassCEndDeviceLorawanMac */
 
 } /* namespace lorawan */

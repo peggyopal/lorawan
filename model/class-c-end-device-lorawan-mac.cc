@@ -38,9 +38,24 @@ static TypeId tid = TypeId ("ns3::ClassCEndDeviceLorawanMac")
 return tid;
 }
 
-ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
+ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac () :
+  // LoraWAN default
+  m_receiveDelay1 (Seconds (1)),
+  // LoraWAN default
+  m_receiveDelay2 (Seconds (2)),
+  m_rx1DrOffset (0)
 {
   NS_LOG_FUNCTION (this);
+
+  // Void the two receiveWindow events
+  m_openFirstWindow = EventId ();
+  m_openFirstWindow.Cancel ();
+  m_closeFirstWindow = EventId ();
+  m_closeFirstWindow.Cancel ();
+  m_closeSecondWindow = EventId ();
+  m_closeSecondWindow.Cancel ();
+  m_secondReceiveWindow = EventId ();
+  m_secondReceiveWindow.Cancel ();
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
