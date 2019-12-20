@@ -61,6 +61,12 @@ NetworkStatus::AddNode (Ptr<ClassAEndDeviceLorawanMac> edMac)
 {
   NS_LOG_FUNCTION (this << edMac);
 
+  // Check whether or not this device exists
+  if (edMac == 0)
+    {
+      return;
+    }
+
   // Check whether this device already exists in our list
   LoraDeviceAddress edAddress = edMac->GetDeviceAddress ();
   if (m_endDeviceStatuses.find (edAddress) == m_endDeviceStatuses.end ())
