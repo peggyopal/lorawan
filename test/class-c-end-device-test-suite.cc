@@ -10,6 +10,7 @@
 #include "ns3/log.h"
 #include "utilities.h"
 #include "ns3/class-c-end-device-lorawan-mac.h"
+#include "ns3/lora-helper.h"
 
 // An essential include is test.h
 #include "ns3/test.h"
@@ -23,36 +24,39 @@ NS_LOG_COMPONENT_DEFINE ("ClassCEndDeviceLorawanMacTestSuite");
 // EndDeviceStatus testing //
 /////////////////////////////
 
-class ClassCEndDeviceTest : public TestCase
+class InitializeLorawanMacClassCEndDeviceTest : public TestCase
 {
 public:
-  ClassCEndDeviceTest ();
-  virtual ~ClassCEndDeviceTest ();
+  InitializeLorawanMacClassCEndDeviceTest ();
+  virtual ~InitializeLorawanMacClassCEndDeviceTest ();
 
 private:
   virtual void DoRun (void);
 };
 
 // Add some help text to this case to describe what it is intended to test
-ClassCEndDeviceTest::ClassCEndDeviceTest ()
-  : TestCase ("Verify that the ClassCEndDeviceLorawan operates as expected")
+InitializeLorawanMacClassCEndDeviceTest::InitializeLorawanMacClassCEndDeviceTest ()
+  : TestCase ("Verify that the Lorawan Mac Helper Initalizes Device Type"
+              "to ED_C")
 {
 }
 
 // Reminder that the test case should clean up after itself
-ClassCEndDeviceTest::~ClassCEndDeviceTest ()
+InitializeLorawanMacClassCEndDeviceTest::~InitializeLorawanMacClassCEndDeviceTest ()
 {
 }
 // This method is the pure virtual method from class TestCase that every
 // TestCase must implement
 void
-ClassCEndDeviceTest::DoRun (void)
+InitializeLorawanMacClassCEndDeviceTest::DoRun (void)
 {
-  NS_LOG_DEBUG ("ClassCEndDeviceTestSuite");
+  NS_LOG_DEBUG ("InitializeLorawanMacClassCEndDeviceTest");
 
-  int numDevices = 1;
-  // Create a bunch of actual devices
-  NetworkComponents components = InitializeNetwork (numDevices, 0, 2);
+  // Create the LorawanMacHelper
+  LorawanMacHelper macHelper = LorawanMacHelper ();
+  macHelper.SetDeviceType (LorawanMacHelper::ED_C);
+  NS_TEST_ASSERT_MSG_EQ(macHelper.GetDeviceType (), LorawanMacHelper::ED_C,
+                        "macHelper Device Type Not Set Properly.");
 }
 
 
@@ -92,7 +96,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   // LogComponentEnableAll (LOG_PREFIX_TIME);
 
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-  AddTestCase (new ClassCEndDeviceTest, TestCase::QUICK);
+  AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
