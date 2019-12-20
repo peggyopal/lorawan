@@ -43,6 +43,25 @@ public:
   //////////////////////////
 
   /**
+   * Receive a packet.
+   *
+   * This method is typically registered as a callback in the underlying PHY
+   * layer so that it's called when a packet is going up the stack.
+   *
+   * \param packet the received packet.
+   */
+  virtual void Receive (Ptr<Packet const> packet);
+
+  virtual void FailedReception (Ptr<Packet const> packet);
+
+  /**
+   * Perform the actions that are required after a packet send.
+   *
+   * This function handles opening of the first receive window.
+   */
+  virtual void TxFinished (Ptr<const Packet> packet);
+
+  /**
    * Perform operations needed to open the first receive window.
    */
   void OpenFirstReceiveWindow (void);

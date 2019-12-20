@@ -68,6 +68,30 @@ ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
 //////////////////////////
 
 void
+ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
+{
+  NS_LOG_FUNCTION (this << packet);
+
+  NS_LOG_DEBUG ("Receive");
+}
+
+void
+ClassCEndDeviceLorawanMac::FailedReception (Ptr<Packet const> packet)
+{
+  NS_LOG_FUNCTION (this << packet);
+
+  NS_LOG_DEBUG ("FailedReception");
+}
+
+void
+ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
+{
+  NS_LOG_FUNCTION (this << packet);
+
+  NS_LOG_DEBUG ("TxFinished");
+}
+
+void
 ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow ()
 {
   NS_LOG_FUNCTION_NOARGS ();
