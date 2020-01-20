@@ -9,6 +9,7 @@
 // Include headers of classes to test
 #include "ns3/log.h"
 #include "utilities.h"
+#include "ns3/callback.h"
 #include "ns3/class-c-end-device-lorawan-mac.h"
 #include "ns3/lora-helper.h"
 
@@ -85,7 +86,7 @@ CreateNodeContainerOfOneClassCDeviceTest::~CreateNodeContainerOfOneClassCDeviceT
 void
 CreateNodeContainerOfOneClassCDeviceTest::DoRun (void)
 {
-  NS_LOG_DEBUG ("ClassCGetTypeIdTest");
+  NS_LOG_DEBUG ("CreateNodeContainerOfOneClassCDeviceTest");
 
   NetworkComponents components = InitializeNetwork (1, 1, 2);
 
@@ -101,6 +102,7 @@ CreateNodeContainerOfOneClassCDeviceTest::DoRun (void)
     }
   NS_TEST_ASSERT_MSG_EQ(i, 1, "More than one ED was created.");
 }
+
 
 /////////////////////////////////////////////////////
 // CreateNodeContainerOfManyClassCDeviceTests Test //
@@ -127,7 +129,7 @@ CreateNodeContainerOfManyClassCDeviceTests::~CreateNodeContainerOfManyClassCDevi
 void
 CreateNodeContainerOfManyClassCDeviceTests::DoRun (void)
 {
-  NS_LOG_DEBUG ("ClassCGetTypeIdTest");
+  NS_LOG_DEBUG ("CreateNodeContainerOfManyClassCDeviceTests");
 
   NetworkComponents components = InitializeNetwork (10, 1, 2);
 
@@ -143,6 +145,79 @@ CreateNodeContainerOfManyClassCDeviceTests::DoRun (void)
     }
   NS_TEST_ASSERT_MSG_EQ(i, 10, "More than one ED was created.");
 }
+
+
+///////////////////////////////////////
+// ReceiveDownlinkMessageClassC Test //
+///////////////////////////////////////
+
+
+///////////////////////////////////////
+// ReceiveDownlinkMessageClassC Test //
+///////////////////////////////////////
+class ReceiveDownlinkMessageClassC : public TestCase
+{
+public:
+  ReceiveDownlinkMessageClassC ();
+  virtual ~ReceiveDownlinkMessageClassC ();
+
+  void ReceivedPacketAtEndDevice (uint8_t requiredTransmissions, bool success,
+                                  Time time, Ptr<Packet> packet);
+  void SendPacket (Ptr<Node> endDevice);
+
+private:
+  virtual void DoRun (void);
+  bool m_receivedPacketAtEd = false;
+};
+
+ReceiveDownlinkMessageClassC::ReceiveDownlinkMessageClassC ()
+  : TestCase ("Verify creating a NodeContainer that contains many "
+              "ClassCEndDeviceLorawanMac devices")
+{
+}
+
+ReceiveDownlinkMessageClassC::~ReceiveDownlinkMessageClassC ()
+{
+}
+
+void
+ReceiveDownlinkMessageClassC::ReceivedPacketAtEndDevice (uint8_t requiredTransmissions, bool success, Time time, Ptr<Packet> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the ED");
+  m_receivedPacketAtEd = true;
+}
+
+void
+ReceiveDownlinkMessageClassC::SendPacket (Ptr<Node> endDevice)
+{
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+void
+ReceiveDownlinkMessageClassC::DoRun (void)
+{
+  NS_LOG_DEBUG ("ReceiveDownlinkMessage");
+
+  NetworkComponents components = InitializeNetwork (10, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+
+  // Connect the ED's trace source for received packets
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext ("RequiredTransmissions", MakeCallback (&ReceiveDownlinkMessageClassC::ReceivedPacketAtEndDevice, this));
+
+  
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageClassC::SendPacket, this,
+                       endDevices.Get (0));
+
+  Simulator::Stop (Seconds (5));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacketAtEd == true);
+}
+
 
 /**************
  * Test Suite *
@@ -178,6 +253,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfOneClassCDeviceTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

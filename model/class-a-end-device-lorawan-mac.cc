@@ -168,7 +168,6 @@ ClassAEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
           NS_LOG_INFO ("The message is for us!");
 
           // If it exists, cancel the second receive window event
-          // THIS WILL BE GetReceiveWindow()
           Simulator::Cancel (m_secondReceiveWindow);
 
 
