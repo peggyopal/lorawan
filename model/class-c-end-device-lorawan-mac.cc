@@ -48,6 +48,15 @@ ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
   NS_LOG_FUNCTION_NOARGS ();
 }
 
+/////////////////////
+// Sending methods //
+/////////////////////
+
+void
+ClassCEndDeviceLorawanMac::SendToPhy (Ptr<Packet> packetToSend)
+{
+}
+
 //////////////////////////
 //  Receiving methods   //
 //////////////////////////
