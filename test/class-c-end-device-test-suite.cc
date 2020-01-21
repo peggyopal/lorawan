@@ -198,7 +198,7 @@ ReceiveDownlinkMessageClassC::DoRun (void)
 {
   NS_LOG_DEBUG ("ReceiveDownlinkMessage");
 
-  NetworkComponents components = InitializeNetwork (10, 1, 2);
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
 
   NodeContainer endDevices = components.endDevices;
 
@@ -244,6 +244,9 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   LogComponentEnable ("LoraNetDevice", LOG_LEVEL_ALL);
   LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
   LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
+  LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
 
   // LogComponentEnableAll (LOG_PREFIX_FUNC);
   // LogComponentEnableAll (LOG_PREFIX_NODE);
