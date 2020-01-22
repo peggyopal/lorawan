@@ -57,6 +57,16 @@ EndDeviceStatus::EndDeviceStatus (LoraDeviceAddress endDeviceAddress,
   NS_LOG_FUNCTION (endDeviceAddress);
 }
 
+EndDeviceStatus::EndDeviceStatus (LoraDeviceAddress endDeviceAddress,
+                                  Ptr<ClassCEndDeviceLorawanMac> endDeviceMac)
+    // : m_reply (EndDeviceStatus::Reply ()),
+    //   m_endDeviceAddress (endDeviceAddress),
+    //   m_receivedPacketList (ReceivedPacketList ()),
+    //   m_mac (endDeviceMac)
+{
+  NS_LOG_FUNCTION (endDeviceAddress);
+}
+
 EndDeviceStatus::EndDeviceStatus ()
 {
   NS_LOG_FUNCTION_NOARGS ();

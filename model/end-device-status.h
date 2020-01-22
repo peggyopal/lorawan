@@ -26,6 +26,7 @@
 #include "ns3/lora-device-address.h"
 #include "ns3/lorawan-mac-header.h"
 #include "ns3/class-a-end-device-lorawan-mac.h"
+#include "ns3/class-c-end-device-lorawan-mac.h"
 #include "ns3/lora-frame-header.h"
 #include "ns3/pointer.h"
 #include "ns3/lora-frame-header.h"
@@ -186,6 +187,8 @@ public:
   EndDeviceStatus ();
   EndDeviceStatus (LoraDeviceAddress endDeviceAddress,
                    Ptr<ClassAEndDeviceLorawanMac> endDeviceMac);
+  EndDeviceStatus (LoraDeviceAddress endDeviceAddress,
+                   Ptr<ClassCEndDeviceLorawanMac> endDeviceMac);
   virtual ~EndDeviceStatus ();
 
   /**
