@@ -167,7 +167,7 @@ private:
 // Add some help text to this case to describe what it is intended to test
 UplinkPacketClassCDeviceTests::UplinkPacketClassCDeviceTests ()
   : TestCase ("Verify that the NetworkServer can receive"
-              " packets sent in the uplink by devices")
+              " packets sent in the uplink by class C devices")
 {
 }
 
@@ -224,72 +224,144 @@ UplinkPacketClassCDeviceTests::DoRun (void)
 }
 
 
+//////////////////////////////////////////
+// PacketReceivedInEDPhyLayerClassC Test //
+//////////////////////////////////////////
+class PacketReceivedInEDPhyLayerClassC : public TestCase
+{
+public:
+  PacketReceivedInEDPhyLayerClassC ();
+  virtual ~PacketReceivedInEDPhyLayerClassC ();
+
+  void PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address);
+  void SendPacket (Ptr<Node> endDevice);
+
+private:
+  virtual void DoRun (void);
+  bool m_receivedPacketInEDPhyLayer = false;
+};
+
+PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayerClassC ()
+  : TestCase ("Verify that the PHY layer of a Class C End Device "
+              "receives a packet from the MAC layer and is able "
+              "to continue the transmission.")
+{
+}
+
+PacketReceivedInEDPhyLayerClassC::~PacketReceivedInEDPhyLayerClassC ()
+{
+}
+
+void
+PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address)
+{
+  NS_LOG_DEBUG ("Sending a packet from the ED Phy Layer");
+  m_receivedPacketInEDPhyLayer = true;
+}
+
+void
+PacketReceivedInEDPhyLayerClassC::SendPacket (Ptr<Node> endDevice)
+{
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+void
+PacketReceivedInEDPhyLayerClassC::DoRun (void)
+{
+  NS_LOG_DEBUG ("PacketReceivedInEDPhyLayerClassC");
+
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+
+  // Connect the ED's trace source for received packets
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetPhy ()->GetObject<LoraPhy>()->TraceConnectWithoutContext 
+    ("StartSending", 
+    MakeCallback 
+      (&PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayer, 
+      this));
+
+  
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &PacketReceivedInEDPhyLayerClassC::SendPacket, this,
+                       endDevices.Get (0));
+
+  Simulator::Stop (Seconds (8));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacketInEDPhyLayer == true);
+}
+
+
+
 // NOT READY FOR THESE TESTS
 ///////////////////////////////////////
 // ReceiveDownlinkMessageClassC Test //
 ///////////////////////////////////////
-// class ReceiveDownlinkMessageClassC : public TestCase
-// {
-// public:
-//   ReceiveDownlinkMessageClassC ();
-//   virtual ~ReceiveDownlinkMessageClassC ();
+class ReceiveDownlinkMessageClassC : public TestCase
+{
+public:
+  ReceiveDownlinkMessageClassC ();
+  virtual ~ReceiveDownlinkMessageClassC ();
 
-//   void ReceivedPacketAtEndDevice (uint8_t requiredTransmissions, bool success,
-//                                   Time time, Ptr<Packet> packet);
-//   void SendPacket (Ptr<Node> endDevice);
+  void ReceivedPacketAtED (uint8_t requiredTransmissions, bool success,
+                           Time time, Ptr<Packet> packet);
+  void SendPacket (Ptr<Node> endDevice);
 
-// private:
-//   virtual void DoRun (void);
-//   bool m_receivedPacketAtEd = false;
-// };
+private:
+  virtual void DoRun (void);
+  bool m_receivedPacketAtEd = false;
+};
 
-// ReceiveDownlinkMessageClassC::ReceiveDownlinkMessageClassC ()
-//   : TestCase ("Verify creating a NodeContainer that contains many "
-//               "ClassCEndDeviceLorawanMac devices")
-// {
-// }
+ReceiveDownlinkMessageClassC::ReceiveDownlinkMessageClassC ()
+  : TestCase ("Verify creating a NodeContainer that contains many "
+              "ClassCEndDeviceLorawanMac devices")
+{
+}
 
-// ReceiveDownlinkMessageClassC::~ReceiveDownlinkMessageClassC ()
-// {
-// }
+ReceiveDownlinkMessageClassC::~ReceiveDownlinkMessageClassC ()
+{
+}
 
-// void
-// ReceiveDownlinkMessageClassC::ReceivedPacketAtEndDevice (uint8_t requiredTransmissions, bool success, Time time, Ptr<Packet> packet)
-// {
-//   NS_LOG_DEBUG ("Received a packet at the ED");
-//   m_receivedPacketAtEd = true;
-// }
+void
+ReceiveDownlinkMessageClassC::ReceivedPacketAtED (uint8_t requiredTransmissions, bool success, Time time, Ptr<Packet> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the ED");
+  m_receivedPacketAtEd = true;
+}
 
-// void
-// ReceiveDownlinkMessageClassC::SendPacket (Ptr<Node> endDevice)
-// {
-//   endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
-// }
+void
+ReceiveDownlinkMessageClassC::SendPacket (Ptr<Node> endDevice)
+{
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
 
-// void
-// ReceiveDownlinkMessageClassC::DoRun (void)
-// {
-//   NS_LOG_DEBUG ("ReceiveDownlinkMessage");
+void
+ReceiveDownlinkMessageClassC::DoRun (void)
+{
+  NS_LOG_DEBUG ("ReceiveDownlinkMessage");
 
-//   NetworkComponents components = InitializeNetwork (1, 1, 2);
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
 
-//   NodeContainer endDevices = components.endDevices;
+  NodeContainer endDevices = components.endDevices;
 
-//   // Connect the ED's trace source for received packets
-//   endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext ("RequiredTransmissions", MakeCallback (&ReceiveDownlinkMessageClassC::ReceivedPacketAtEndDevice, this));
+  // Connect the ED's trace source for received packets
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext ("ReceivedPacket", MakeCallback (&ReceiveDownlinkMessageClassC::ReceivedPacketAtED, this));
 
   
-//   // Send a packet
-//   Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageClassC::SendPacket, this,
-//                        endDevices.Get (0));
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageClassC::SendPacket, this,
+                       endDevices.Get (0));
 
-//   Simulator::Stop (Seconds (8));
-//   Simulator::Run ();
-//   Simulator::Destroy ();
+  Simulator::Stop (Seconds (8));
+  Simulator::Run ();
+  Simulator::Destroy ();
 
-//   // Check that we received the packet
-//   NS_ASSERT (m_receivedPacketAtEd == true);
-// }
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacketAtEd == true);
+}
 
 
 /**************
@@ -330,6 +402,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new CreateNodeContainerOfOneClassCDeviceTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
+  AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
   // AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
 
