@@ -147,9 +147,82 @@ CreateNodeContainerOfManyClassCDeviceTests::DoRun (void)
 }
 
 
-///////////////////////////////////////
-// ReceiveDownlinkMessageClassC Test //
-///////////////////////////////////////
+////////////////////////////////////////
+// UplinkPacketClassCDeviceTests Test //
+////////////////////////////////////////
+class UplinkPacketClassCDeviceTests : public TestCase
+{
+public:
+  UplinkPacketClassCDeviceTests ();
+  virtual ~UplinkPacketClassCDeviceTests ();
+
+  void ReceivedPacket (Ptr<Packet const> packet);
+  void SendPacket (Ptr<Node> endDevice);
+
+private:
+  virtual void DoRun (void);
+  bool m_receivedPacket = false;
+};
+
+// Add some help text to this case to describe what it is intended to test
+UplinkPacketClassCDeviceTests::UplinkPacketClassCDeviceTests ()
+  : TestCase ("Verify that the NetworkServer can receive"
+              " packets sent in the uplink by devices")
+{
+}
+
+// Reminder that the test case should clean up after itself
+UplinkPacketClassCDeviceTests::~UplinkPacketClassCDeviceTests ()
+{
+}
+
+void
+UplinkPacketClassCDeviceTests::ReceivedPacket (Ptr<Packet const> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the NS");
+  m_receivedPacket = true;
+}
+
+void
+UplinkPacketClassCDeviceTests::SendPacket (Ptr<Node> endDevice)
+{
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+// This method is the pure virtual method from class TestCase that every
+// TestCase must implement
+void
+UplinkPacketClassCDeviceTests::DoRun (void)
+{
+  NS_LOG_DEBUG ("UplinkPacketClassCDeviceTests");
+
+  // Create a bunch of actual devices
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  Ptr<LoraChannel> channel = components.channel;
+  NodeContainer endDevices = components.endDevices;
+  NodeContainer gateways = components.gateways;
+  Ptr<Node> nsNode = components.nsNode;
+
+  // Connect the trace source for received packets
+  nsNode->GetApplication (0)->TraceConnectWithoutContext
+    ("ReceivedPacket",
+    MakeCallback
+      (&UplinkPacketClassCDeviceTests::ReceivedPacket,
+      this));
+
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &UplinkPacketClassCDeviceTests::SendPacket, this,
+                       endDevices.Get (0));
+
+  Simulator::Stop (Seconds (5));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacket == true);
+}
+
 
 // NOT READY FOR THESE TESTS
 ///////////////////////////////////////
@@ -256,7 +329,8 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfOneClassCDeviceTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
-  AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
+  AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
+  // AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
