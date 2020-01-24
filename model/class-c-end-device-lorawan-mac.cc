@@ -42,6 +42,8 @@ return tid;
 ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac () 
 {
   NS_LOG_FUNCTION (this);
+
+  m_deviceClass = EndDeviceLorawanMac::CLASS_C;
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
@@ -107,9 +109,9 @@ ClassCEndDeviceLorawanMac::SendToPhy (Ptr<Packet> packetToSend)
 
   // Instruct the PHY on the right Spreading Factor to listen for during the window
   // create a SetReplyDataRate function?
-  uint8_t replyDataRate = GetFirstReceiveWindowDataRate ();
+  uint8_t replyDataRate = GetSecondReceiveWindowDataRate ();
   NS_LOG_DEBUG ("m_dataRate: " << unsigned (m_dataRate) <<
-                ", m_rx1DrOffset: " << unsigned (m_rx1DrOffset) <<
+                ", m_rx2DrOffset: " << unsigned (m_rx1DrOffset) <<
                 ", replyDataRate: " << unsigned (replyDataRate) << ".");
 
   m_phy->GetObject<EndDeviceLoraPhy> ()->SetSpreadingFactor
@@ -142,6 +144,21 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   NS_LOG_FUNCTION (this << packet);
 
   NS_LOG_DEBUG ("TxFinished");
+
+  // Schedule the opening of the second receive window
+  m_secondReceiveWindow = Simulator::Schedule (m_receiveDelay1,
+                                               &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                               this);
+
+  // Schedule the opening of the first receive window
+  Simulator::Schedule ((m_receiveDelay2 - m_receiveDelay1),
+                       &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
+
+  // Schedule the opening of the second receive window
+  m_secondReceiveWindow = Simulator::Schedule (Simulator::GetMaximumSimulationTime (),
+                                               &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                               this);
+  
 }
 
 } /* namespace lorawan */

@@ -708,6 +708,7 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
   // Schedule return to sleep after "at least the time required by the end
   // device's radio transceiver to effectively detect a downlink preamble"
   // (LoraWAN specification)
+  // if 
   m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                              &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
 
@@ -781,6 +782,11 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
 /////////////////////////
 // Setters and Getters //
 /////////////////////////
+enum EndDeviceLorawanMac::DeviceClass 
+EndDeviceLorawanMac::GetDeviceClass ()
+{
+  return m_deviceClass;
+}
 
 void EndDeviceLorawanMac::resetRetransmissionParameters ()
 {

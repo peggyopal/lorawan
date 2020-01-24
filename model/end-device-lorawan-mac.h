@@ -40,6 +40,13 @@ namespace lorawan {
 class EndDeviceLorawanMac : public LorawanMac
 {
 public:
+  enum DeviceClass
+  {
+    CLASS_A,
+    // CLASS_B,      (Not implemented)
+    CLASS_C
+  };
+
   static TypeId GetTypeId (void);
 
   EndDeviceLorawanMac ();
@@ -126,6 +133,8 @@ public:
   /////////////////////////
   // Getters and Setters //
   /////////////////////////
+
+  virtual enum DeviceClass GetDeviceClass (void);
 
   /**
   * Reset retransmission parameters contained in the structure LoraRetxParams
@@ -398,6 +407,11 @@ protected:
     bool waitingAck = false;
     uint8_t retxLeft;
   };
+
+  /**
+   * The Class of the device.
+   */ 
+  enum DeviceClass m_deviceClass;
 
   /**
    * Enable Data Rate adaptation during the retransmission procedure.
