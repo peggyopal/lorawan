@@ -104,7 +104,8 @@ EndDeviceLorawanMac::GetTypeId (void)
 }
 
 EndDeviceLorawanMac::EndDeviceLorawanMac ()
-    : m_enableDRAdapt (false),
+    : m_numCloseSecondReceiveWindowCalls (0),
+      m_enableDRAdapt (false),
       m_maxNumbTx (8),
       m_dataRate (0),
       m_txPower (14),
@@ -708,16 +709,20 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
   // Schedule return to sleep after "at least the time required by the end
   // device's radio transceiver to effectively detect a downlink preamble"
   // (LoraWAN specification)
-  // if 
-  m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
-                                             &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-
+  if  ( (m_deviceClass == CLASS_C && m_numCloseSecondReceiveWindowCalls == 0) || m_deviceClass != CLASS_C)
+    {
+      m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
+                                                 &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
+    }
+  
 }
 
 void
 EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
+
+  m_numCloseSecondReceiveWindowCalls = m_numCloseSecondReceiveWindowCalls + 1;
 
   Ptr<EndDeviceLoraPhy> phy = m_phy->GetObject<EndDeviceLoraPhy> ();
 

@@ -52,6 +52,14 @@ public:
   EndDeviceLorawanMac ();
   virtual ~EndDeviceLorawanMac ();
 
+  /**
+   * Exists for Class C device types
+   * 
+   * The value should at most be 1 and is updated when
+   * CloseSecondReceiveWindow function is called.
+   */
+  TracedValue<int> m_numCloseSecondReceiveWindowCalls;
+
   /////////////////////
   // Sending methods //
   /////////////////////
