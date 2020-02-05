@@ -88,7 +88,7 @@ NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, i
 {
   NS_LOG_FUNCTION (deviceAddress);
 
-  NS_LOG_DEBUG ("Opening receive window nubmer " << window << " for device "
+  NS_LOG_DEBUG ("Opening receive window number " << window << " for device "
                                                  << deviceAddress);
 
   // Check whether we can send a reply to the device, again by using
