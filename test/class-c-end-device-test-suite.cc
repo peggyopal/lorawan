@@ -339,6 +339,83 @@ UplinkPacketClassCDeviceTests::DoRun (void)
 }
 
 
+/////////////////////////////////////////////
+// SecondReceiveWindowStaysOpenClassC Test //
+/////////////////////////////////////////////
+class SecondReceiveWindowStaysOpenClassC : public TestCase
+{
+public:
+  SecondReceiveWindowStaysOpenClassC ();
+  virtual ~SecondReceiveWindowStaysOpenClassC ();
+
+  void NumberOfOpenSecondReceiveWindowCalls (Ptr<Packet const> packet);
+  void SendPacket (Ptr<Node> endDevice);
+
+private:
+  virtual void DoRun (void);
+  int m_numCloseSecondReceiveWindowCalls = 0;
+};
+
+// Add some help text to this case to describe what it is intended to test
+SecondReceiveWindowStaysOpenClassC::SecondReceiveWindowStaysOpenClassC ()
+  : TestCase ("Verify that CloseSecondReceiveWindow function is only"
+              " called once.")
+{
+}
+
+// Reminder that the test case should clean up after itself
+SecondReceiveWindowStaysOpenClassC::~SecondReceiveWindowStaysOpenClassC ()
+{
+}
+
+void
+SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls (Ptr<Packet const> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the NS");
+  m_numCloseSecondReceiveWindowCalls += 1;
+}
+
+void
+SecondReceiveWindowStaysOpenClassC::SendPacket (Ptr<Node> endDevice)
+{
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+// This method is the pure virtual method from class TestCase that every
+// TestCase must implement
+void
+SecondReceiveWindowStaysOpenClassC::DoRun (void)
+{
+  NS_LOG_DEBUG ("SecondReceiveWindowStaysOpenClassC");
+
+  // Create a bunch of actual devices
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  Ptr<LoraChannel> channel = components.channel;
+  NodeContainer endDevices = components.endDevices;
+  NodeContainer gateways = components.gateways;
+  Ptr<Node> nsNode = components.nsNode;
+
+  // Connect the trace source for received packets
+  nsNode->GetApplication (0)->TraceConnectWithoutContext
+    ("ReceivedPacket",
+    MakeCallback
+      (&SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls,
+      this));
+
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &SecondReceiveWindowStaysOpenClassC::SendPacket, this,
+                       endDevices.Get (0));
+
+  Simulator::Stop (Seconds (5));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_numCloseSecondReceiveWindowCalls == 1);
+}
+
+
 // NOT READY FOR THESE TESTS
 ///////////////////////////////////////
 // ReceiveDownlinkMessageClassC Test //
@@ -450,6 +527,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
+  AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
   // AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
 
