@@ -427,7 +427,7 @@ public:
   virtual ~ReceiveDownlinkMessageClassC ();
 
   void ReceivedPacketAtED (Ptr<Packet const> packet);
-  void SendPacket (Ptr<Node> endDevice);
+  void SendPacket (Ptr<Node> endDevice, bool requestAck);
 
 private:
   virtual void DoRun (void);
@@ -452,8 +452,14 @@ ReceiveDownlinkMessageClassC::ReceivedPacketAtED (Ptr<Packet const> packet)
 }
 
 void
-ReceiveDownlinkMessageClassC::SendPacket (Ptr<Node> endDevice)
+ReceiveDownlinkMessageClassC::SendPacket (Ptr<Node> endDevice, bool requestAck)
 {
+  if (requestAck)
+    {
+      endDevice->GetDevice (0)->GetObject<LoraNetDevice> ()->GetMac
+        ()->GetObject<EndDeviceLorawanMac> ()->SetMType
+        (LorawanMacHeader::CONFIRMED_DATA_UP);
+    }
   endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
 }
 
@@ -476,7 +482,7 @@ ReceiveDownlinkMessageClassC::DoRun (void)
   
   // Send a packet
   Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageClassC::SendPacket, this,
-                       endDevices.Get (0));
+                       endDevices.Get (0), true);
 
   Simulator::Stop (Seconds (8));
   Simulator::Run ();
@@ -507,14 +513,16 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
 {
   LogComponentEnable ("ClassCEndDeviceLorawanMacTestSuite", LOG_LEVEL_DEBUG);
 
-  LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("LorawanMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("LoraNetDevice", LOG_LEVEL_ALL);
-  LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LorawanMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LoraNetDevice", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
+  LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
+  LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
+  LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
   // LogComponentEnableAll (LOG_PREFIX_FUNC);
   // LogComponentEnableAll (LOG_PREFIX_NODE);
@@ -528,7 +536,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
-  // AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
