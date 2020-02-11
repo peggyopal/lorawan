@@ -75,12 +75,25 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
   // - Extract the address
   LoraDeviceAddress deviceAddress = receivedFrameHdr.GetAddress ();
 
+
+  // Get the device's MAC layer
+  Ptr<EndDeviceLorawanMac> edLorawanMac = m_status->GetEndDeviceStatus
+      (packet)->GetMac ();
+  NS_ASSERT (edLorawanMac != 0);
+
+  int window = 1;
+
+  if (edLorawanMac->GetDeviceClass () == EndDeviceLorawanMac::CLASS_C)
+  {
+    window = 2;
+  }
+
   // Schedule OnReceiveWindowOpportunity event
-  Simulator::Schedule (Seconds (1),
-                       &NetworkScheduler::OnReceiveWindowOpportunity,
-                       this,
-                       deviceAddress,
-                       1);     // This will be the first receive window
+   Simulator::Schedule (Seconds (1),
+                        &NetworkScheduler::OnReceiveWindowOpportunity,
+                        this,
+                        deviceAddress,
+                        window);     // This will be the first receive window
 }
 
 void
