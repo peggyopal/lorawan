@@ -82,14 +82,16 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
   NS_ASSERT (edLorawanMac != 0);
 
   int window = 1;
+  double delayInSeconds = 1.0;
 
   if (edLorawanMac->GetDeviceClass () == EndDeviceLorawanMac::CLASS_C)
   {
     window = 2;
+    delayInSeconds = 0.001;
   }
 
   // Schedule OnReceiveWindowOpportunity event
-   Simulator::Schedule (Seconds (1),
+   Simulator::Schedule (Seconds (delayInSeconds),
                         &NetworkScheduler::OnReceiveWindowOpportunity,
                         this,
                         deviceAddress,
@@ -124,14 +126,34 @@ NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, i
     }
   else if (gwAddress == Address () && window == 2)
     {
-      // No suitable GW was found
-      // Simply give up.
-      NS_LOG_INFO ("Giving up on reply: no suitable gateway was found " <<
-                   "on the second receive window");
+      // Get the device's MAC layer
+      Ptr<EndDeviceLorawanMac> edLorawanMac = m_status->GetEndDeviceStatus
+          (deviceAddress)->GetMac ();
+      NS_ASSERT (edLorawanMac != 0);
 
-      // Reset the reply
-      // XXX Should we reset it here or keep it for the next opportunity?
-      m_status->GetEndDeviceStatus (deviceAddress)->InitializeReply ();
+      if (edLorawanMac->GetDeviceClass () == EndDeviceLorawanMac::CLASS_A)
+        {
+          // No suitable GW was found
+          // Simply give up.
+          NS_LOG_INFO ("Giving up on reply: no suitable gateway was found " <<
+                      "on the second receive window");
+
+          // Reset the reply
+          // XXX Should we reset it here or keep it for the next opportunity?
+          m_status->GetEndDeviceStatus (deviceAddress)->InitializeReply ();
+        }
+      else // Only other option at this time are Class C devices
+        {
+          NS_LOG_DEBUG ("No suitable gateway found.");
+
+          // No suitable GW was found
+          // Schedule OnReceiveWindowOpportunity event
+          Simulator::Schedule (Seconds (1),
+                                &NetworkScheduler::OnReceiveWindowOpportunity,
+                                this,
+                                deviceAddress,
+                                1);     // This will be the first receive window
+        }
     }
   else
     {
