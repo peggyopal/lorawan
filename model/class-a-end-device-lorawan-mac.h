@@ -45,17 +45,6 @@ public:
   ClassAEndDeviceLorawanMac ();
   virtual ~ClassAEndDeviceLorawanMac ();
 
-  /////////////////////
-  // Sending methods //
-  /////////////////////
-
-  /**
-  * Add headers and send a packet with the sending function of the physical layer.
-  *
-  * \param packet the packet to send
-  */
-  virtual void SendToPhy (Ptr<Packet> packet);
-
   //////////////////////////
   //  Receiving methods   //
   //////////////////////////
