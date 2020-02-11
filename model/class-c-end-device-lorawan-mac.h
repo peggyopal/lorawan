@@ -60,6 +60,24 @@ public:
    * This function handles opening of the first receive window.
    */
   virtual void TxFinished (Ptr<const Packet> packet);
+
+protected:
+  /**
+   * The event of the first receive window opening.
+   *
+   * This Event is used to cancel the first window in case the first occurence of the
+   * second receive window is successful.
+   */
+  EventId m_firstReceiveWindow;
+
+  /**
+   * The event of the second occurence of the second receive window opening.
+   *
+   * This Event is used to cancel the receive window in case the first occurence of the
+   * second receive window or the first receive window is successful.
+   */
+  EventId m_secondSecondReceiveWindow;
+
 }; /* ClassCEndDeviceLorawanMac */
 
 } /* namespace lorawan */

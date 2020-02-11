@@ -50,6 +50,11 @@ ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
   NS_LOG_FUNCTION (this);
 
   m_deviceClass = EndDeviceLorawanMac::CLASS_C;
+
+  m_firstReceiveWindow = EventId ();
+  m_firstReceiveWindow.Cancel ();
+  m_secondSecondReceiveWindow = EventId ();
+  m_secondSecondReceiveWindow.Cancel ();
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
@@ -93,6 +98,11 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
       if (messageForUs)
         {
           NS_LOG_INFO ("The message is for us!");
+
+          // If it exists, cancel relevant receive windows events
+          Simulator::Cancel (m_firstReceiveWindow);
+          Simulator::Cancel (m_secondSecondReceiveWindow);
+
         }
     } 
 }
@@ -114,16 +124,16 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
 
   // Schedule the opening of the second receive window
   m_secondReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
-                                               this);
+                                                  this);
 
   // Schedule the opening of the first receive window
-  Simulator::Schedule ((m_receiveDelay1),
-                       &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
+  m_firstReceiveWindow = Simulator::Schedule ((m_receiveDelay1),
+                                               &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
 
   // Schedule the opening of the second receive window
-  m_secondReceiveWindow = Simulator::Schedule (m_receiveDelay2,
-                                               &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
-                                               this);
+  m_secondSecondReceiveWindow = Simulator::Schedule (m_receiveDelay2,
+                                                     &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                                     this);
   
 }
 
