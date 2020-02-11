@@ -66,7 +66,20 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
 {
   NS_LOG_FUNCTION (this << packet);
 
-  NS_LOG_DEBUG ("Receive Function");
+  // Work on a copy of the packet
+  Ptr<Packet> packetCopy = packet->Copy ();
+
+  // Remove the Mac Header to get some information
+  LorawanMacHeader mHdr;
+  packetCopy->RemoveHeader (mHdr);
+
+  NS_LOG_DEBUG ("Mac Header: " << mHdr);
+
+  // Only keep analyzing the packet if it's downlink
+  if (!mHdr.IsUplink ())
+    {
+      NS_LOG_INFO ("Found a downlink packet.");
+    } 
 }
 
 void
