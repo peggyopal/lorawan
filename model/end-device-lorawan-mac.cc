@@ -779,9 +779,14 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
   // Schedule return to sleep after "at least the time required by the end
   // device's radio transceiver to effectively detect a downlink preamble"
   // (LoraWAN specification)
-  if  ( (m_deviceClass == CLASS_C && m_numCloseSecondReceiveWindowCalls == 0) || m_deviceClass != CLASS_C)
+  if  (m_deviceClass != CLASS_C)
     {
       m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
+                                                 &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
+    }
+  else if (m_deviceClass == CLASS_C && m_numCloseSecondReceiveWindowCalls == 0)
+    {
+      m_closeSecondWindow = Simulator::Schedule (m_receiveDelay1,
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     }
   
@@ -817,40 +822,43 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
       phy->SwitchToSleep ();
       break;
     }
-
-  if (m_retxParams.waitingAck)
+  
+  if (m_deviceClass == CLASS_A)
     {
-      NS_LOG_DEBUG ("No reception initiated by PHY: rescheduling transmission.");
-      if (m_retxParams.retxLeft > 0 )
-        {
-          NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) << " retransmissions left: rescheduling transmission.");
-          this->Send (m_retxParams.packet);
-        }
+    if (m_retxParams.waitingAck)
+      {
+        NS_LOG_DEBUG ("No reception initiated by PHY: rescheduling transmission.");
+        if (m_retxParams.retxLeft > 0 )
+          {
+            NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) << " retransmissions left: rescheduling transmission.");
+            this->Send (m_retxParams.packet);
+          }
 
-      else if (m_retxParams.retxLeft == 0 && m_phy->GetObject<EndDeviceLoraPhy> ()->GetState () != EndDeviceLoraPhy::RX)
-        {
-          uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
-          m_requiredTxCallback (txs, false, m_retxParams.firstAttempt, m_retxParams.packet);
-          NS_LOG_DEBUG ("Failure: no more retransmissions left. Used " << unsigned(txs) << " transmissions.");
+        else if (m_retxParams.retxLeft == 0 && m_phy->GetObject<EndDeviceLoraPhy> ()->GetState () != EndDeviceLoraPhy::RX)
+          {
+            uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
+            m_requiredTxCallback (txs, false, m_retxParams.firstAttempt, m_retxParams.packet);
+            NS_LOG_DEBUG ("Failure: no more retransmissions left. Used " << unsigned(txs) << " transmissions.");
 
-          // Reset retransmission parameters
-          resetRetransmissionParameters ();
-        }
+            // Reset retransmission parameters
+            resetRetransmissionParameters ();
+          }
 
-      else
-        {
-          NS_ABORT_MSG ("The number of retransmissions left is negative ! ");
-        }
-    }
-  else
-    {
-      uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft );
-      m_requiredTxCallback (txs, true, m_retxParams.firstAttempt, m_retxParams.packet);
-      NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) <<
-                   " transmissions left. We were not transmitting confirmed messages.");
+        else
+          {
+            NS_ABORT_MSG ("The number of retransmissions left is negative ! ");
+          }
+      }
+    else
+      {
+        uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft );
+        m_requiredTxCallback (txs, true, m_retxParams.firstAttempt, m_retxParams.packet);
+        NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) <<
+                    " transmissions left. We were not transmitting confirmed messages.");
 
-      // Reset retransmission parameters
-      resetRetransmissionParameters ();
+        // Reset retransmission parameters
+        resetRetransmissionParameters ();
+      }
     }
 }
 
