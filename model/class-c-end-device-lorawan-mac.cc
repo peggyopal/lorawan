@@ -66,7 +66,7 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
 {
   NS_LOG_FUNCTION (this << packet);
 
-  NS_LOG_DEBUG ("Receive");
+  NS_LOG_DEBUG ("Receive Function");
 }
 
 void
@@ -85,16 +85,15 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   NS_LOG_DEBUG ("TxFinished");
 
   // Schedule the opening of the second receive window
-  m_secondReceiveWindow = Simulator::Schedule (m_receiveDelay1,
-                                               &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+  m_secondReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                                                this);
 
   // Schedule the opening of the first receive window
-  Simulator::Schedule ((m_receiveDelay2 - m_receiveDelay1),
+  Simulator::Schedule ((m_receiveDelay1),
                        &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
 
   // Schedule the opening of the second receive window
-  m_secondReceiveWindow = Simulator::Schedule (Simulator::GetMaximumSimulationTime (),
+  m_secondReceiveWindow = Simulator::Schedule (m_receiveDelay2,
                                                &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                                                this);
   
