@@ -103,6 +103,14 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
           Simulator::Cancel (m_firstReceiveWindow);
           Simulator::Cancel (m_secondSecondReceiveWindow);
 
+          // Parse the MAC commands
+          ParseCommands (fHdr);
+
+          // TODO Pass the packet up to the NetDevice
+
+
+          // Call the trace source
+          m_receivedPacket (packet);
         }
     } 
 }
