@@ -79,6 +79,21 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
   if (!mHdr.IsUplink ())
     {
       NS_LOG_INFO ("Found a downlink packet.");
+
+      // Remove the Frame Header
+      LoraFrameHeader fHdr;
+      fHdr.SetAsDownlink ();
+      packetCopy->RemoveHeader (fHdr);
+
+      NS_LOG_DEBUG ("Frame Header: " << fHdr);
+
+      // Determine whether this packet is for us
+      bool messageForUs = (m_address == fHdr.GetAddress ());
+
+      if (messageForUs)
+        {
+          NS_LOG_INFO ("The message is for us!");
+        }
     } 
 }
 
