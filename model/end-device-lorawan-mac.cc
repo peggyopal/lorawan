@@ -421,16 +421,18 @@ EndDeviceLorawanMac::ParseCommands (LoraFrameHeader frameHeader)
       if (frameHeader.GetAck ())
         {
           NS_LOG_INFO ("The message is an ACK, not waiting for it anymore.");
+          
+          if (m_deviceClass == CLASS_A)
+            {
+              NS_LOG_DEBUG ("Reset retransmission variables to default values and cancel retransmission if already scheduled.");
 
-          NS_LOG_DEBUG ("Reset retransmission variables to default values and cancel retransmission if already scheduled.");
+              uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
+              m_requiredTxCallback (txs, true, m_retxParams.firstAttempt, m_retxParams.packet);
+              NS_LOG_DEBUG ("Received ACK packet after " << unsigned(txs) << " transmissions: stopping retransmission procedure. ");
 
-          uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
-          m_requiredTxCallback (txs, true, m_retxParams.firstAttempt, m_retxParams.packet);
-          NS_LOG_DEBUG ("Received ACK packet after " << unsigned(txs) << " transmissions: stopping retransmission procedure. ");
-
-          // Reset retransmission parameters
-          resetRetransmissionParameters ();
-
+              // Reset retransmission parameters
+              resetRetransmissionParameters ();
+            }
         }
       else
         {
