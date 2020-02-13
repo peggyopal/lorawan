@@ -76,7 +76,7 @@ protected:
    * This Event is used to cancel the receive window in case the first occurence of the
    * second receive window or the first receive window is successful.
    */
-  EventId m_secondSecondReceiveWindow;
+  EventId m_continuousReceiveWindow;
 
 }; /* ClassCEndDeviceLorawanMac */
 
