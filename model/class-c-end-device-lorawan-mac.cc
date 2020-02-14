@@ -112,6 +112,7 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               NS_LOG_DEBUG ("Packet was received in first occurence of RX2");
               Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
               NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining);
+              NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining-Seconds(0.002));
               Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
               NS_LOG_INFO ("Rx2DelayRemaining " << Rx2DelayRemaining);
             }
@@ -131,8 +132,6 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
 
           // TODO Pass the packet up to the NetDevice
 
-          // TODO Check if we have already received this packet?
-
           // Call the trace source
           m_receivedPacket (packet);
           
@@ -146,6 +145,25 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
           //                                                    this);
         }
     } 
+}
+
+
+void
+ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (double time)
+{
+  NS_LOG_FUNCTION (this << time);
+
+  if (time == 0.0)
+    {
+      m_continuousReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                                          this);
+    }
+  else if (time > 0.0)
+    { 
+      m_continuousReceiveWindow = Simulator::Schedule (Seconds (time),
+                                                   &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                                   this);
+    }
 }
 
 void
@@ -164,8 +182,7 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   NS_LOG_DEBUG ("TxFinished");
 
   // Schedule the opening of the second receive window
-  m_continuousReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
-                                                      this);
+  this->OpenContinuousReceiveWindow (0);
 
   // Schedule the opening of the first receive window
   m_firstReceiveWindow = Simulator::Schedule (m_receiveDelay1,
