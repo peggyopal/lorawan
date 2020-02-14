@@ -22,7 +22,7 @@
  */
 
 #include "ns3/end-device-lorawan-mac.h"
-#include "ns3/class-a-end-device-lorawan-mac.h"
+#include "ns3/class-c-end-device-lorawan-mac.h"
 #include "ns3/end-device-lora-phy.h"
 #include "ns3/simulator.h"
 #include "ns3/log.h"
@@ -278,13 +278,11 @@ EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
           NS_LOG_DEBUG ("Copied packet: " << m_retxParams.packet);
           m_sentNewPacket (m_retxParams.packet);
 
-          // static_cast<ClassAEndDeviceLorawanMac*>(this)->SendToPhy (m_retxParams.packet);
           SendToPhy (m_retxParams.packet);
         }
       else
         {
           m_sentNewPacket (packet);
-          // static_cast<ClassAEndDeviceLorawanMac*>(this)->SendToPhy (packet);
           SendToPhy (packet);
         }
 
@@ -318,7 +316,6 @@ EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
           m_retxParams.retxLeft = m_retxParams.retxLeft - 1;           // decreasing the number of retransmissions
           NS_LOG_DEBUG ("Retransmitting an old packet.");
 
-          // static_cast<ClassAEndDeviceLorawanMac*>(this)->SendToPhy (m_retxParams.packet);
           SendToPhy (m_retxParams.packet);
         }
     }
@@ -716,6 +713,11 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
   m_closeFirstWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                             &EndDeviceLorawanMac::CloseFirstReceiveWindow, this); //m_receiveWindowDuration
 
+  if (m_deviceClass == CLASS_C && !m_secondReceiveWindow.IsExpired ())
+    {
+      // auto classC = static_cast<ClassCEndDeviceLorawanMac*>(this);
+      // classC->m_continuousReceiveWindow = Simulator::ScheduleNow (&EndDeviceLorawanMac::OpenSecondReceiveWindow, this);
+    }
 }
 
 void
@@ -1122,7 +1124,6 @@ EndDeviceLorawanMac::OnRxParamSetupReq (Ptr<RxParamSetupReq> rxParamSetupReq)
 {
   NS_LOG_FUNCTION (this << rxParamSetupReq);
 
-  // static_cast<ClassAEndDeviceLorawanMac*>(this)->OnRxClassParamSetupReq (rxParamSetupReq);
   OnRxClassParamSetupReq (rxParamSetupReq);
 }
 
