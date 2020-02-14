@@ -53,8 +53,8 @@ ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
 
   m_firstReceiveWindow = EventId ();
   m_firstReceiveWindow.Cancel ();
-  m_secondSecondReceiveWindow = EventId ();
-  m_secondSecondReceiveWindow.Cancel ();
+  m_continuousReceiveWindow = EventId ();
+  m_continuousReceiveWindow.Cancel ();
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
@@ -95,22 +95,55 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
       // Determine whether this packet is for us
       bool messageForUs = (m_address == fHdr.GetAddress ());
 
+      Time Rx1DelayRemaining = Time(0);
+      Time Rx2DelayRemaining = Time(0);
+
       if (messageForUs)
         {
           NS_LOG_INFO ("The message is for us!");
 
-          // If it exists, cancel relevant receive windows events
-          Simulator::Cancel (m_firstReceiveWindow);
-          Simulator::Cancel (m_secondSecondReceiveWindow);
+          // If it exists, check which receive window the packet was
+          // received in.  
+          // Note: A scheduled event is marked as expired as soon as it starts
+          if (m_continuousReceiveWindow.IsExpired () &&
+              !m_firstReceiveWindow.IsExpired () &&
+              !m_secondReceiveWindow.IsExpired ())
+            {
+              NS_LOG_DEBUG ("Packet was received in first occurence of RX2");
+              Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
+              NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining);
+              Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
+              NS_LOG_INFO ("Rx2DelayRemaining " << Rx2DelayRemaining);
+            }
+          else if (m_continuousReceiveWindow.IsExpired () && 
+                   m_firstReceiveWindow.IsExpired () &&
+                   !m_secondReceiveWindow.IsExpired ())
+            {
+              NS_LOG_DEBUG ("Packet was received in RX1");
+            }    
+          else 
+            {
+              NS_LOG_DEBUG ("Packet must have been received in first occurence of RX2");
+            }
 
           // Parse the MAC commands
           ParseCommands (fHdr);
 
           // TODO Pass the packet up to the NetDevice
 
+          // TODO Check if we have already received this packet?
 
           // Call the trace source
           m_receivedPacket (packet);
+          
+          // if (!m_secondReceiveWindow.IsExpired ())
+          //   {
+          //     Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+          //                                         this);
+          //   }
+          // m_secondSecondReceiveWindow = Simulator::Schedule (Seconds (0.001),
+          //                                                    &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+          //                                                    this);
         }
     } 
 }
@@ -131,17 +164,17 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   NS_LOG_DEBUG ("TxFinished");
 
   // Schedule the opening of the second receive window
-  m_secondReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
-                                                  this);
+  m_continuousReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                                      this);
 
   // Schedule the opening of the first receive window
-  m_firstReceiveWindow = Simulator::Schedule ((m_receiveDelay1),
-                                               &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
+  m_firstReceiveWindow = Simulator::Schedule (m_receiveDelay1,
+                                              &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, this);
 
   // Schedule the opening of the second receive window
-  m_secondSecondReceiveWindow = Simulator::Schedule (m_receiveDelay2,
-                                                     &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
-                                                     this);
+  m_secondReceiveWindow = Simulator::Schedule (m_receiveDelay2,
+                                               &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
+                                               this);
   
 }
 
