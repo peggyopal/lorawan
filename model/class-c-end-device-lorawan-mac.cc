@@ -160,20 +160,26 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
   m_continuousReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                                                       this);
 
-  Time Rx1DelayRemaining = Time(0);
   Time Rx2DelayRemaining = Time(0);
 
   if (m_numContinuousReceiveWindows == 1)
     {
       // This is the first receive window to open, it occurs before RX1
       m_closeContinuousReceiveWindow = Simulator::Schedule (m_receiveDelay1,
-                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, this);
+                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
+                                                            this);
     }
   else if (m_numContinuousReceiveWindows == 2)
     {
       // Close RXC when RX2 opens
-      // Simulator::GetDelayLeft (m_secondReceiveWindow);
+      Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
+      NS_LOG_INFO ("Delay left " << Rx2DelayRemaining);
       // if GetDelayLeft == 0 then... close immediately? 
+      m_closeContinuousReceiveWindow = Simulator::Schedule (Rx2DelayRemaining,
+                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
+                                                            this);
+      
+      NS_LOG_INFO ("Is RX2 still open? " << m_closeSecondWindow.IsExpired ());
     }
 }
 
