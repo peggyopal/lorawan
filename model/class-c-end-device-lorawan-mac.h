@@ -54,6 +54,8 @@ public:
 
   void OpenContinuousReceiveWindow (void);
 
+  void CloseContinuousReceiveWindow (void);
+
   virtual void FailedReception (Ptr<Packet const> packet);
 
   /**
@@ -73,12 +75,20 @@ protected:
   EventId m_firstReceiveWindow;
 
   /**
-   * The event of the second occurence of the second receive window opening.
+   * The event of the continuous receive window opening.
    *
    * This Event is used to cancel the receive window in case the first occurence of the
    * second receive window or the first receive window is successful.
    */
   EventId m_continuousReceiveWindow;
+
+  /**
+     * The event of the closing the continuous receive window.
+     *
+     * This Event will be canceled if there's a successful reception of a packet
+     * in RX1.
+     */
+  EventId m_closeContinuousReceiveWindow;
 
 }; /* ClassCEndDeviceLorawanMac */
 
