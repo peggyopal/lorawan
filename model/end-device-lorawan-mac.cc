@@ -711,11 +711,19 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
   // device's radio transceiver to effectively detect a downlink preamble"
   // (LoraWAN specification)
   m_closeFirstWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
-                                            &EndDeviceLorawanMac::CloseFirstReceiveWindow, this); //m_receiveWindowDuration
+                                            &EndDeviceLorawanMac::CloseFirstReceiveWindow,
+                                            this); //m_receiveWindowDuration
 
-  if (m_deviceClass == CLASS_C && !m_secondReceiveWindow.IsExpired ())
+  // For class C devices, after the first receive window (RW) opens, a 
+  // continuous window must open.  If a packet is received and for some 
+  // reason the first RW time extends past the delay to opened the second RW,
+  // then no continuous RW needs to open as an intermediate RW.  This case 
+  // should be handled in ClassC Receive function.   
+  if (m_deviceClass == CLASS_C) 
     {
-      this->GetObject<ClassCEndDeviceLorawanMac> ()->OpenContinuousReceiveWindow (m_receiveWindowDurationInSymbols*tSym); 
+      Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
+                                    &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                    this->GetObject<ClassCEndDeviceLorawanMac> ());
     }
 }
 
@@ -787,16 +795,16 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
       m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     }
-  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 0)
+  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 1)
     {
       m_closeSecondWindow = Simulator::Schedule (m_receiveDelay1,
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     }
-  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 1)
-    {
-      m_closeSecondWindow = Simulator::Schedule (m_receiveDelay2,
-                                                 &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-    }
+  // else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 2)
+  //   {
+  //     m_closeSecondWindow = Simulator::Schedule (m_receiveDelay2,
+  //                                                &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
+  //   }
   
 }
 
