@@ -187,7 +187,7 @@ ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow (void)
   NS_LOG_FUNCTION_NOARGS ();
 
   m_closeContinuousWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow,
-                                                           this);
+                                                    this);
 }
 
 void
