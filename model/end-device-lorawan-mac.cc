@@ -104,7 +104,7 @@ EndDeviceLorawanMac::GetTypeId (void)
 }
 
 EndDeviceLorawanMac::EndDeviceLorawanMac ()
-    : m_numCloseSecondReceiveWindowCalls (0),
+    : m_numContinuousReceiveWindows (0),
       m_enableDRAdapt (false),
       m_maxNumbTx (8),
       m_dataRate (0),
@@ -787,9 +787,14 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
       m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     }
-  else if (m_deviceClass == CLASS_C && m_numCloseSecondReceiveWindowCalls == 0)
+  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 0)
     {
       m_closeSecondWindow = Simulator::Schedule (m_receiveDelay1,
+                                                 &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
+    }
+  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 1)
+    {
+      m_closeSecondWindow = Simulator::Schedule (m_receiveDelay2,
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     }
   
@@ -799,8 +804,6 @@ void
 EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
-
-  m_numCloseSecondReceiveWindowCalls = m_numCloseSecondReceiveWindowCalls + 1;
 
   Ptr<EndDeviceLoraPhy> phy = m_phy->GetObject<EndDeviceLoraPhy> ();
 

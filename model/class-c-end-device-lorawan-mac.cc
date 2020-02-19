@@ -39,7 +39,7 @@ static TypeId tid = TypeId ("ns3::ClassCEndDeviceLorawanMac")
                    "Whether or not the second occurence of the "
                     "second receive window is cancelled.",
                     MakeTraceSourceAccessor
-                      (&EndDeviceLorawanMac::m_numCloseSecondReceiveWindowCalls),
+                      (&EndDeviceLorawanMac::m_numContinuousReceiveWindows),
                     "ns3::TracedValueCallback::Int")
   .AddConstructor<ClassCEndDeviceLorawanMac> ();
 return tid;

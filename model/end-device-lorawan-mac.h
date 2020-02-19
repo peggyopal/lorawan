@@ -58,7 +58,7 @@ public:
    * The value should at most be 1 and is updated when
    * CloseSecondReceiveWindow function is called.
    */
-  TracedValue<int> m_numCloseSecondReceiveWindowCalls;
+  TracedValue<int> m_numContinuousReceiveWindows;
 
   /////////////////////
   // Sending methods //
