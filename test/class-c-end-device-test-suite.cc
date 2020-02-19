@@ -353,7 +353,7 @@ public:
 
 private:
   virtual void DoRun (void);
-  int m_numCloseSecondReceiveWindowCalls = 0;
+  int m_numContinuousReceiveWindows = 0;
 };
 
 // Add some help text to this case to describe what it is intended to test
@@ -372,7 +372,7 @@ void
 SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls (Ptr<Packet const> packet)
 {
   NS_LOG_DEBUG ("Received a packet at the NS");
-  m_numCloseSecondReceiveWindowCalls += 1;
+  m_numContinuousReceiveWindows += 1;
 }
 
 void
@@ -412,7 +412,7 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
   Simulator::Destroy ();
 
   // Check that we received the packet
-  NS_ASSERT (m_numCloseSecondReceiveWindowCalls == 1);
+  NS_ASSERT (m_numContinuousReceiveWindows == 1);
 }
 
 
@@ -521,12 +521,12 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-  LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
+  // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
+  // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
-  // LogComponentEnableAll (LOG_PREFIX_FUNC);
-  // LogComponentEnableAll (LOG_PREFIX_NODE);
-  // LogComponentEnableAll (LOG_PREFIX_TIME);
+  LogComponentEnableAll (LOG_PREFIX_FUNC);
+  LogComponentEnableAll (LOG_PREFIX_NODE);
+  LogComponentEnableAll (LOG_PREFIX_TIME);
 
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
