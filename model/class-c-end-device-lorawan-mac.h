@@ -52,7 +52,7 @@ public:
    */
   virtual void Receive (Ptr<Packet const> packet);
 
-  void OpenContinuousReceiveWindow (double Time);
+  void OpenContinuousReceiveWindow (void);
 
   virtual void FailedReception (Ptr<Packet const> packet);
 
