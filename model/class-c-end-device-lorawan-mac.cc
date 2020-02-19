@@ -35,9 +35,9 @@ ClassCEndDeviceLorawanMac::GetTypeId (void)
 static TypeId tid = TypeId ("ns3::ClassCEndDeviceLorawanMac")
   .SetParent<EndDeviceLorawanMac> ()
   .SetGroupName ("lorawan")
-  .AddTraceSource ("NumberOfOpenSecondReceiveWindowCalls",
-                   "Whether or not the second occurence of the "
-                    "second receive window is cancelled.",
+  .AddTraceSource ("NumberOfContinuousReceiveWindowCalls",
+                   "Count how many times a continuous receive window "
+                   "has been opened.",
                     MakeTraceSourceAccessor
                       (&EndDeviceLorawanMac::m_numContinuousReceiveWindows),
                     "ns3::TracedValueCallback::Int")
