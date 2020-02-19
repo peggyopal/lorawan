@@ -88,7 +88,7 @@ protected:
      * This Event will be canceled if there's a successful reception of a packet
      * in RX1.
      */
-  EventId m_closeContinuousReceiveWindow;
+  EventId m_closeContinuousWindow;
 
 }; /* ClassCEndDeviceLorawanMac */
 

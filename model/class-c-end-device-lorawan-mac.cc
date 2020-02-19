@@ -55,8 +55,8 @@ ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
   m_firstReceiveWindow.Cancel ();
   m_continuousReceiveWindow = EventId ();
   m_continuousReceiveWindow.Cancel ();
-  m_closeContinuousReceiveWindow = EventId ();
-  m_closeContinuousReceiveWindow.Cancel ();
+  m_closeContinuousWindow = EventId ();
+  m_closeContinuousWindow.Cancel ();
 }
 
 ClassCEndDeviceLorawanMac::~ClassCEndDeviceLorawanMac ()
@@ -165,9 +165,9 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
   if (m_numContinuousReceiveWindows == 1)
     {
       // This is the first receive window to open, it occurs before RX1
-      m_closeContinuousReceiveWindow = Simulator::Schedule (m_receiveDelay1,
-                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
-                                                            this);
+      m_closeContinuousWindow = Simulator::Schedule (m_receiveDelay1,
+                                                     &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
+                                                     this);
     }
   else if (m_numContinuousReceiveWindows == 2)
     {
@@ -175,11 +175,9 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
       Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
       NS_LOG_INFO ("Delay left " << Rx2DelayRemaining);
       // if GetDelayLeft == 0 then... close immediately? 
-      m_closeContinuousReceiveWindow = Simulator::Schedule (Rx2DelayRemaining,
-                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
-                                                            this);
-      
-      NS_LOG_INFO ("Is RX2 still open? " << m_closeSecondWindow.IsExpired ());
+      m_closeContinuousWindow = Simulator::Schedule (Rx2DelayRemaining,
+                                                     &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
+                                                     this);
     }
 }
 
@@ -188,7 +186,7 @@ ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  m_closeContinuousReceiveWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow,
+  m_closeContinuousWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow,
                                                            this);
 }
 
