@@ -794,18 +794,7 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
     {
       m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-    }
-  else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 1)
-    {
-      m_closeSecondWindow = Simulator::Schedule (m_receiveDelay1,
-                                                 &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-    }
-  // else if (m_deviceClass == CLASS_C && m_numContinuousReceiveWindows == 2)
-  //   {
-  //     m_closeSecondWindow = Simulator::Schedule (m_receiveDelay2,
-  //                                                &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-  //   }
-  
+    }  
 }
 
 void

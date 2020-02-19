@@ -166,9 +166,8 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
   if (m_numContinuousReceiveWindows == 1)
     {
       // This is the first receive window to open, it occurs before RX1
-      // Close RXC at m_receiveDelay1 time
-      // m_closeContinuousReceiveWindow = Simulator::Schedule (m_receiveDelay1,
-      //                                                       &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, this);
+      m_closeContinuousReceiveWindow = Simulator::Schedule (m_receiveDelay1,
+                                                            &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, this);
     }
   else if (m_numContinuousReceiveWindows == 2)
     {
