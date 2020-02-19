@@ -715,8 +715,7 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
 
   if (m_deviceClass == CLASS_C && !m_secondReceiveWindow.IsExpired ())
     {
-      // auto classC = static_cast<ClassCEndDeviceLorawanMac*>(this);
-      // classC->m_continuousReceiveWindow = Simulator::ScheduleNow (&EndDeviceLorawanMac::OpenSecondReceiveWindow, this);
+      this->GetObject<ClassCEndDeviceLorawanMac> ()->OpenContinuousReceiveWindow (m_receiveWindowDurationInSymbols*tSym); 
     }
 }
 
