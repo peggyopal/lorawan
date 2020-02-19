@@ -111,12 +111,15 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               !m_firstReceiveWindow.IsExpired () &&
               !m_secondReceiveWindow.IsExpired ())
             {
-              NS_LOG_DEBUG ("Packet was received in first occurence of RX2");
-              Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
-              NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining);
-              NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining-Seconds(0.002));
-              Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
-              NS_LOG_INFO ("Rx2DelayRemaining " << Rx2DelayRemaining);
+              NS_LOG_DEBUG ("Packet was received before RX1");
+              Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow) - Seconds(0.002);
+              // NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining);
+              // NS_LOG_INFO ("Rx1DelayRemaining " << Rx1DelayRemaining-Seconds(0.002));
+              Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow) - Seconds(0.002);
+              // NS_LOG_INFO ("Rx2DelayRemaining " << Rx2DelayRemaining);
+
+              Simulator::Cancel (m_firstReceiveWindow);
+              Simulator::Cancel (m_secondReceiveWindow);
             }
           else if (m_continuousReceiveWindow.IsExpired () && 
                    m_firstReceiveWindow.IsExpired () &&
@@ -173,7 +176,6 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
     {
       // Close RXC when RX2 opens
       Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
-      NS_LOG_INFO ("Delay left " << Rx2DelayRemaining);
       // if GetDelayLeft == 0 then... close immediately? 
       m_closeContinuousWindow = Simulator::Schedule (Rx2DelayRemaining,
                                                      &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
