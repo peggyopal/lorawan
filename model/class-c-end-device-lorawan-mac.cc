@@ -164,6 +164,12 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
                    m_secondReceiveWindow.IsExpired ())
             {
               NS_LOG_DEBUG ("Packet was received in RX2");
+
+              Simulator::Cancel (m_closeSecondWindow);
+              Simulator::Cancel (m_continuousReceiveWindow3);
+
+              // Reschedule cancelled events
+              this->ScheduleEvents(Seconds(0) - Seconds(1), Rx1DelayRemaining, Rx2DelayRemaining);
             }
           else 
             {
