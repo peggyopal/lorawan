@@ -52,6 +52,9 @@ public:
    */
   virtual void Receive (Ptr<Packet const> packet);
 
+  void ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rxc2Open,
+                         Time Rx2Open, Time Rxc3Open);
+
   void OpenContinuousReceiveWindow (void);
 
   void CloseContinuousReceiveWindow (void);
@@ -90,9 +93,7 @@ protected:
      * This Event will be canceled if there's a successful reception of a packet
      * in RX1.
      */
-  EventId m_closeContinuousWindow1;
-  EventId m_closeContinuousWindow2;
-  EventId m_closeContinuousWindow3;
+  EventId m_closeContinuousWindow;
 
 }; /* ClassCEndDeviceLorawanMac */
 
