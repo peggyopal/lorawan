@@ -417,7 +417,6 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
 }
 
 
-// NOT READY FOR THESE TESTS
 ///////////////////////////////////////
 // ReceiveDownlinkMessageClassC Test //
 ///////////////////////////////////////
