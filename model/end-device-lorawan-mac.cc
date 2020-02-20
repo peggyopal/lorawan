@@ -713,18 +713,6 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
   m_closeFirstWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                             &EndDeviceLorawanMac::CloseFirstReceiveWindow,
                                             this); //m_receiveWindowDuration
-
-  // For class C devices, after the first receive window (RW) opens, a 
-  // continuous window must open.  If a packet is received and for some 
-  // reason the first RW time extends past the delay to opened the second RW,
-  // then no continuous RW needs to open as an intermediate RW.  This case 
-  // should be handled in ClassC Receive function.   
-  if (m_deviceClass == CLASS_C) 
-    {
-      Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
-                                    &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                                    this->GetObject<ClassCEndDeviceLorawanMac> ());
-    }
 }
 
 void
@@ -799,12 +787,13 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
       m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
     
-    if (m_deviceClass == CLASS_C)
-      {
-        Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
-                             &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                             this->GetObject<ClassCEndDeviceLorawanMac> ());
-      }
+    // if (m_deviceClass == CLASS_C)
+    //   {
+    //     // this->GetObject<ClassCEndDeviceLorawanMac> ()->OpenContinuousReceiveWindow (Seconds (m_receiveWindowDurationInSymbols*tSym));
+    //     Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
+    //                          &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+    //                          this->GetObject<ClassCEndDeviceLorawanMac> ());
+    //   }
     }    
 }
 

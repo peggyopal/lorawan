@@ -80,7 +80,9 @@ protected:
    * This Event is used to cancel the receive window in case the first occurence of the
    * second receive window or the first receive window is successful.
    */
-  EventId m_continuousReceiveWindow;
+  EventId m_continuousReceiveWindow1;
+  EventId m_continuousReceiveWindow2;
+  EventId m_continuousReceiveWindow3;
 
   /**
      * The event of the closing the continuous receive window.
@@ -88,7 +90,9 @@ protected:
      * This Event will be canceled if there's a successful reception of a packet
      * in RX1.
      */
-  EventId m_closeContinuousWindow;
+  EventId m_closeContinuousWindow1;
+  EventId m_closeContinuousWindow2;
+  EventId m_closeContinuousWindow3;
 
 }; /* ClassCEndDeviceLorawanMac */
 
