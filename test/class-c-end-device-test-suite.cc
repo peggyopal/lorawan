@@ -348,7 +348,7 @@ public:
   SecondReceiveWindowStaysOpenClassC ();
   virtual ~SecondReceiveWindowStaysOpenClassC ();
 
-  void NumberOfOpenSecondReceiveWindowCalls (Ptr<Packet const> packet);
+  void NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue);
   void SendPacket (Ptr<Node> endDevice);
 
 private:
@@ -369,7 +369,7 @@ SecondReceiveWindowStaysOpenClassC::~SecondReceiveWindowStaysOpenClassC ()
 }
 
 void
-SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls (Ptr<Packet const> packet)
+SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue)
 {
   NS_LOG_DEBUG ("Received a packet at the NS");
   m_numContinuousReceiveWindows += 1;
@@ -397,8 +397,9 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
   Ptr<Node> nsNode = components.nsNode;
 
   // Connect the trace source for received packets
-  nsNode->GetApplication (0)->TraceConnectWithoutContext
-    ("ReceivedPacket",
+  //nsNode->GetApplication (0)->TraceConnectWithoutContext
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<ClassCEndDeviceLorawanMac>()->TraceConnectWithoutContext 
+      ("NumberOfContinuousReceiveWindowCalls",
     MakeCallback
       (&SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls,
       this));
@@ -412,7 +413,7 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
   Simulator::Destroy ();
 
   // Check that we received the packet
-  NS_ASSERT (m_numContinuousReceiveWindows == 1);
+  NS_ASSERT (m_numContinuousReceiveWindows == 3);
 }
 
 
