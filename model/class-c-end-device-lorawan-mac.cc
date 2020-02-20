@@ -123,23 +123,14 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
             {
               NS_LOG_DEBUG ("Packet was received before RX1");
               
+              Simulator::Cancel (m_closeContinuousWindow);
               Simulator::Cancel (m_firstReceiveWindow);
               Simulator::Cancel (m_secondReceiveWindow);
               Simulator::Cancel (m_continuousReceiveWindow2);
               Simulator::Cancel (m_continuousReceiveWindow3);
-              Simulator::Cancel (m_closeContinuousWindow);
-
-              Time Rx1Delay = (Rx1DelayRemaining > Seconds(0)) ? Rx1DelayRemaining : Seconds (0);
-              Time Rx2Delay = (Rx2DelayRemaining > Seconds(0)) ? Rx2DelayRemaining : Seconds (0);
-
-              // 1) Close RXC1 in Rx1Delay time
-              // 2) Open RX1 in Rx1Delay time
-              // 3) Open RXC2 in Rx1Delay + windowduration time
-              // 4) Open RX2 in Rx2Delay
-              // 5) Open RXC3 in Rx2Delay + windowduration time
-              // Do I actually need these five parameters then??
-              // TODO: Figure it out.
-              this->ScheduleEvents(Rx1Delay, Rx1Delay, Rx1Delay, Rx2Delay, Rx2Delay);
+              
+              // Reschedule cancelled events
+              this->ScheduleEvents(Seconds(0), Rx1DelayRemaining, Rx2DelayRemaining);
             }
           else if (!m_continuousReceiveWindow2.IsExpired () && 
                    m_firstReceiveWindow.IsExpired () &&
@@ -163,6 +154,7 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
             {
               NS_LOG_DEBUG ("Packet was received in the final RXC");
             }
+          
 
           // Parse the MAC commands
           ParseCommands (fHdr);
@@ -176,44 +168,52 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
 }
 
 void
-ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rxc2Open,
-                                             Time Rx2Open, Time Rxc3Open)
+ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2Open)
 {
   double tSymRx1 = pow (2, GetSfFromDataRate (GetFirstReceiveWindowDataRate ())) / GetBandwidthFromDataRate ( GetFirstReceiveWindowDataRate ());
   Time firstReceiveWindowDuration = Seconds (m_receiveWindowDurationInSymbols*tSymRx1);
   double tSymRx2 = pow (2, GetSfFromDataRate (GetSecondReceiveWindowDataRate ())) / GetBandwidthFromDataRate ( GetSecondReceiveWindowDataRate ());
   Time secondReceiveWindowDuration = Seconds (m_receiveWindowDurationInSymbols*tSymRx2);            
 
-  m_closeContinuousWindow = Simulator::Schedule (RxcClose,
-                                                 &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow,
-                                                 this);
-
-  if (Rx1Open.IsPositive ()) 
+  if (RxcClose.IsStrictlyPositive ())
+    {
+      m_closeContinuousWindow = Simulator::Schedule (RxcClose,
+                                                     &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow,
+                                                     this);
+    }
+  
+  if (Rx1Open.IsStrictlyPositive ()) 
     {
       m_firstReceiveWindow = Simulator::Schedule (Rx1Open,
                                                   &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, 
                                                   this);
-    }
 
-  if (Rxc2Open.IsStrictlyPositive ())
-    {
-      m_continuousReceiveWindow2 = Simulator::Schedule (Rxc2Open + firstReceiveWindowDuration,
+      m_continuousReceiveWindow2 = Simulator::Schedule (Rx1Open + firstReceiveWindowDuration,
                                                         &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
                                                         this);
     }
   
-  if (Rx2Open.IsPositive ())
+  if (Rx1Open.IsZero ())
+    {
+      m_continuousReceiveWindow2 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                           this);
+    }
+  
+  if (Rx2Open.IsStrictlyPositive ())
     {
       m_secondReceiveWindow = Simulator::Schedule (Rx2Open,
                                                    &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                                                    this);
-    }
-  
-  if (Rxc3Open.IsPositive ())
-    {
-      m_continuousReceiveWindow3 = Simulator::Schedule (Rxc3Open + secondReceiveWindowDuration,
+
+      m_continuousReceiveWindow3 = Simulator::Schedule (Rx2Open + secondReceiveWindowDuration,
                                                         &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
                                                         this);
+    }
+  
+  if (Rx2Open.IsZero ())
+    {
+      m_continuousReceiveWindow3 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                               this);      
     }
 }
 
@@ -271,8 +271,7 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
 
   NS_LOG_DEBUG ("TxFinished");
 
-  this->ScheduleEvents(m_receiveDelay1, m_receiveDelay1, m_receiveDelay1, 
-                       m_receiveDelay2, m_receiveDelay2);
+  this->ScheduleEvents(Seconds(0) - Seconds(1), m_receiveDelay1, m_receiveDelay2);
 
   // Schedule the opening of the first occurence of the continuous receive window
   m_continuousReceiveWindow1 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,

@@ -52,8 +52,7 @@ public:
    */
   virtual void Receive (Ptr<Packet const> packet);
 
-  void ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rxc2Open,
-                         Time Rx2Open, Time Rxc3Open);
+  void ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2Open);
 
   void OpenContinuousReceiveWindow (void);
 
