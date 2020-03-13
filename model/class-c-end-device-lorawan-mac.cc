@@ -130,7 +130,7 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               Simulator::Cancel (m_continuousReceiveWindow3);
               
               // Reschedule cancelled events
-              this->ScheduleEvents(Seconds(0), Rx1DelayRemaining, Rx2DelayRemaining);
+              this->ScheduleEvents(Rx1DelayRemaining, Rx1DelayRemaining, Rx2DelayRemaining);
             }
           else if (!m_continuousReceiveWindow2.IsExpired () && 
                    m_firstReceiveWindow.IsExpired () &&
@@ -185,6 +185,51 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
           // Call the trace source
           m_receivedPacket (packet);
         }
+      else
+        {
+          NS_LOG_DEBUG ("The message is intended for another recipient.");
+
+          // In this case, we are either receiving in the first receive window
+          // and finishing reception inside the second one, or receiving a
+          // packet in the second receive window and finding out, after the
+          // fact, that the packet is not for us. In either case, if we no
+          // longer have any retransmissions left, we declare failure.
+          if (m_retxParams.waitingAck && m_secondReceiveWindow.IsExpired ())
+            {
+              if (m_retxParams.retxLeft == 0)
+                {
+                  uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
+                  m_requiredTxCallback (txs, false, m_retxParams.firstAttempt, m_retxParams.packet);
+                  NS_LOG_DEBUG ("Failure: no more retransmissions left. Used " << unsigned(txs) << " transmissions.");
+
+                  // Reset retransmission parameters
+                  resetRetransmissionParameters ();
+                }
+              else       // Reschedule
+                {
+                  this->Send (m_retxParams.packet);
+                  NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) << " retransmissions left: rescheduling transmission.");
+                }
+            }
+        }
+    }
+  else if (m_retxParams.waitingAck && m_secondReceiveWindow.IsExpired ())
+    {
+      NS_LOG_INFO ("The packet we are receiving is in uplink.");
+      if (m_retxParams.retxLeft > 0)
+        {
+          this->Send (m_retxParams.packet);
+          NS_LOG_INFO ("We have " << unsigned(m_retxParams.retxLeft) << " retransmissions left: rescheduling transmission.");
+        }
+      else
+        {
+          uint8_t txs = m_maxNumbTx - (m_retxParams.retxLeft);
+          m_requiredTxCallback (txs, false, m_retxParams.firstAttempt, m_retxParams.packet);
+          NS_LOG_DEBUG ("Failure: no more retransmissions left. Used " << unsigned(txs) << " transmissions.");
+
+          // Reset retransmission parameters
+          resetRetransmissionParameters ();
+        }
     } 
 }
 
@@ -196,7 +241,7 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
   double tSymRx2 = pow (2, GetSfFromDataRate (GetSecondReceiveWindowDataRate ())) / GetBandwidthFromDataRate ( GetSecondReceiveWindowDataRate ());
   Time secondReceiveWindowDuration = Seconds (m_receiveWindowDurationInSymbols*tSymRx2);            
 
-  if (RxcClose.IsStrictlyPositive ())
+  if (RxcClose.IsPositive ())
     {
       m_closeContinuousWindow = Simulator::Schedule (RxcClose,
                                                      &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow,
