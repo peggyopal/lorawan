@@ -57,7 +57,9 @@ public:
    * Method that is scheduled after packet arrivals in order to act on
    * receive windows 1 and 2 seconds later receptions.
    */
-  void OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, int window);
+  void OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, int window, Ptr<EndDeviceLorawanMac> edLorawanMac);
+
+  EventId m_recieveWindowOpportunity; 
 
 private:
   TracedCallback<Ptr<const Packet> > m_receiveWindowOpened;

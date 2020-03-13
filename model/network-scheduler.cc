@@ -14,7 +14,8 @@ NetworkScheduler::GetTypeId (void)
     .SetParent<Object> ()
     .AddConstructor<NetworkScheduler> ()
     .AddTraceSource ("ReceiveWindowOpened",
-                     "Trace source that is fired when a receive window opportunity happens.",
+                     "Trace source that is fired when a receive window "
+                     "opportunity happens.",
                      MakeTraceSourceAccessor (&NetworkScheduler::m_receiveWindowOpened),
                      "ns3::Packet::TracedCallback")
     .SetGroupName ("lorawan");
@@ -23,6 +24,8 @@ NetworkScheduler::GetTypeId (void)
 
 NetworkScheduler::NetworkScheduler ()
 {
+  m_recieveWindowOpportunity = EventId ();
+  m_recieveWindowOpportunity.Cancel ();
 }
 
 NetworkScheduler::NetworkScheduler (Ptr<NetworkStatus> status,
@@ -76,35 +79,44 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
   LoraDeviceAddress deviceAddress = receivedFrameHdr.GetAddress ();
 
 
+  double delayInSeconds = 1.0;
+  int window = 1;
+
   // Get the device's MAC layer
   Ptr<EndDeviceLorawanMac> edLorawanMac = m_status->GetEndDeviceStatus
       (packet)->GetMac ();
   NS_ASSERT (edLorawanMac != 0);
 
-  int window = 1;
-  double delayInSeconds = 1.0;
-
   if (edLorawanMac->GetDeviceClass () == EndDeviceLorawanMac::CLASS_C)
-  {
-    window = 2;
-    delayInSeconds = 0.001;
-  }
+    {     
+      window = 2;
+      delayInSeconds = 0.001;
+    }
 
   // Schedule OnReceiveWindowOpportunity event
-   Simulator::Schedule (Seconds (delayInSeconds),
-                        &NetworkScheduler::OnReceiveWindowOpportunity,
-                        this,
-                        deviceAddress,
-                        window);     // This will be the first receive window
+  m_recieveWindowOpportunity =  Simulator::Schedule (Seconds (delayInSeconds),
+                    &NetworkScheduler::OnReceiveWindowOpportunity,
+                    this,
+                    deviceAddress,
+                    window, 
+                    edLorawanMac);     // This will be the first receive window
 }
 
 void
-NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, int window)
+NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, int window, Ptr<EndDeviceLorawanMac> edLorawanMac)
 {
   NS_LOG_FUNCTION (deviceAddress);
 
   NS_LOG_DEBUG ("Opening receive window number " << window << " for device "
                                                  << deviceAddress);
+
+  double delayInSeconds = 1.0;
+  NS_ASSERT (edLorawanMac != 0);
+
+  if (edLorawanMac->GetDeviceClass () == EndDeviceLorawanMac::CLASS_C)
+    {     
+      delayInSeconds = 0.001;
+    }
 
   // Check whether we can send a reply to the device, again by using
   // NetworkStatus
@@ -118,11 +130,12 @@ NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, i
 
       // No suitable GW was found
       // Schedule OnReceiveWindowOpportunity event
-      Simulator::Schedule (Seconds (1),
+      Simulator::Schedule (Seconds (delayInSeconds),
                            &NetworkScheduler::OnReceiveWindowOpportunity,
                            this,
                            deviceAddress,
-                           2);     // This will be the second receive window
+                           2,
+                           edLorawanMac);     // This will be the second receive window
     }
   else if (gwAddress == Address () && window == 2)
     {
@@ -148,11 +161,12 @@ NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, i
 
           // No suitable GW was found
           // Schedule OnReceiveWindowOpportunity event
-          Simulator::Schedule (Seconds (1),
+          Simulator::Schedule (Seconds (delayInSeconds),
                                 &NetworkScheduler::OnReceiveWindowOpportunity,
                                 this,
                                 deviceAddress,
-                                1);     // This will be the first receive window
+                                1,
+                                edLorawanMac);     // This will be the first receive window
         }
     }
   else
