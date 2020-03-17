@@ -49,10 +49,6 @@ NetworkServer::GetTypeId (void)
                      "Trace source that is fired when a packet arrives at the Network Server",
                      MakeTraceSourceAccessor (&NetworkServer::m_receivedPacket),
                      "ns3::Packet::TracedCallback")
-    // .AddTraceSource ("OnReceivedPacket",
-    //                  "Trace source that is fired when a packet arrives at the Network Scheduler",
-    //                  MakeTraceSourceAccessor (&NetworkScheduler::m_onReceivedPacket),
-    //                  "ns3::Packet::TracedCallback")
     .AddTraceSource ("SchedulerReceivedPacket",
                      "Trace source that is fired when a packet arrives at the Network Scheduler",
                      MakeTraceSourceAccessor (&NetworkServer::m_schedulerReceivedPacket),
