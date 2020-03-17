@@ -281,8 +281,8 @@ private:
 
 // Add some help text to this case to describe what it is intended to test
 UplinkPacketClassC::UplinkPacketClassC ()
-  : TestCase ("Verify that the NetworkServer can receive"
-              " packets sent in the uplink by class C devices")
+  : TestCase ("Verify that the NetworkServer can receive "
+              "packets sent in the uplink by Class C devices.")
 {
 }
 
@@ -358,8 +358,8 @@ private:
 
 // Add some help text to this case to describe what it is intended to test
 ThirdRxcStaysOpenAfterRx2::ThirdRxcStaysOpenAfterRx2 ()
-  : TestCase ("Verify that CloseSecondReceiveWindow function is only"
-              " called once.")
+  : TestCase ("Verify that the third occurence of the continuous receive "
+              "window stays open.")
 {
 }
 
@@ -435,8 +435,9 @@ private:
 };
 
 ReceiveDownlinkMessageRXC1::ReceiveDownlinkMessageRXC1 ()
-  : TestCase ("Verify creating a NodeContainer that contains many "
-              "ClassCEndDeviceLorawanMac devices")
+  : TestCase ("Verify that packets are properly received and handled "
+              "when received in the first occurence of the continuous "
+              "receive window for ClassCEndDeviceLorawanMac devices.")
 {
 }
 
