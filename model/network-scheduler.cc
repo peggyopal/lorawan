@@ -192,5 +192,12 @@ NetworkScheduler::OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, i
         }
     }
 }
+
+Ptr<NetworkStatus>
+NetworkScheduler::GetNetworkStatus (void)
+{
+  return m_status;
+}
+
 }
 }

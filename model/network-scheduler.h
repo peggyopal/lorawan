@@ -59,6 +59,8 @@ public:
    */
   void OnReceiveWindowOpportunity (LoraDeviceAddress deviceAddress, int window, Ptr<EndDeviceLorawanMac> edLorawanMac);
 
+  Ptr<NetworkStatus> GetNetworkStatus (void);
+
   EventId m_recieveWindowOpportunity; 
 
 private:
