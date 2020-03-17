@@ -631,6 +631,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
   AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageRX1, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
