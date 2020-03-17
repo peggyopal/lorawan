@@ -194,11 +194,11 @@ CreateNodeContainerOfMany::DoRun (void)
 ///////////////////////////////////////////
 // PacketReceivedInEDPhyLayerClassC Test //
 ///////////////////////////////////////////
-class PacketReceivedInEDPhyLayerClassC : public TestCase
+class PacketReceivedInEDPhyLayer : public TestCase
 {
 public:
-  PacketReceivedInEDPhyLayerClassC ();
-  virtual ~PacketReceivedInEDPhyLayerClassC ();
+  PacketReceivedInEDPhyLayer ();
+  virtual ~PacketReceivedInEDPhyLayer ();
 
   void PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address);
   void SendPacket (Ptr<Node> endDevice);
@@ -208,34 +208,34 @@ private:
   bool m_receivedPacketInEDPhyLayer = false;
 };
 
-PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayerClassC ()
+PacketReceivedInEDPhyLayer::PacketReceivedInEDPhyLayer ()
   : TestCase ("Verify that the PHY layer of a Class C End Device "
               "receives a packet from the MAC layer and is able "
               "to continue the transmission.")
 {
 }
 
-PacketReceivedInEDPhyLayerClassC::~PacketReceivedInEDPhyLayerClassC ()
+PacketReceivedInEDPhyLayer::~PacketReceivedInEDPhyLayer ()
 {
 }
 
 void
-PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address)
+PacketReceivedInEDPhyLayer::PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address)
 {
   NS_LOG_DEBUG ("Sending a packet from the ED Phy Layer");
   m_receivedPacketInEDPhyLayer = true;
 }
 
 void
-PacketReceivedInEDPhyLayerClassC::SendPacket (Ptr<Node> endDevice)
+PacketReceivedInEDPhyLayer::SendPacket (Ptr<Node> endDevice)
 {
   endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
 }
 
 void
-PacketReceivedInEDPhyLayerClassC::DoRun (void)
+PacketReceivedInEDPhyLayer::DoRun (void)
 {
-  NS_LOG_DEBUG ("PacketReceivedInEDPhyLayerClassC");
+  NS_LOG_DEBUG ("PacketReceivedInEDPhyLayer");
 
   NetworkComponents components = InitializeNetwork (1, 1, 2);
 
@@ -245,12 +245,12 @@ PacketReceivedInEDPhyLayerClassC::DoRun (void)
   endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetPhy ()->GetObject<LoraPhy>()->TraceConnectWithoutContext 
     ("StartSending", 
     MakeCallback 
-      (&PacketReceivedInEDPhyLayerClassC::PacketReceivedInEDPhyLayer, 
+      (&PacketReceivedInEDPhyLayer::PacketReceivedInEDPhyLayer, 
       this));
 
   
   // Send a packet
-  Simulator::Schedule (Seconds (1), &PacketReceivedInEDPhyLayerClassC::SendPacket, this,
+  Simulator::Schedule (Seconds (1), &PacketReceivedInEDPhyLayer::SendPacket, this,
                        endDevices.Get (0));
 
   Simulator::Stop (Seconds (8));
@@ -533,7 +533,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
-  AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
+  AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
