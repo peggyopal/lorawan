@@ -105,32 +105,32 @@ InitializeDeviceClassTest::DoRun (void)
 }
 
 
-///////////////////////////////////////////////////
-// CreateNodeContainerOfOneClassCDeviceTest Test //
-///////////////////////////////////////////////////
-class CreateNodeContainerOfOneClassCDeviceTest : public TestCase
+///////////////////////////////////
+// CreateNodeContainerOfOne Test //
+///////////////////////////////////
+class CreateNodeContainerOfOne : public TestCase
 {
 public:
-  CreateNodeContainerOfOneClassCDeviceTest ();
-  virtual ~CreateNodeContainerOfOneClassCDeviceTest ();
+  CreateNodeContainerOfOne ();
+  virtual ~CreateNodeContainerOfOne ();
 
 private:
   virtual void DoRun (void);
 };
 
-CreateNodeContainerOfOneClassCDeviceTest::CreateNodeContainerOfOneClassCDeviceTest ()
+CreateNodeContainerOfOne::CreateNodeContainerOfOne ()
   : TestCase ("Verify creating a NodeContainer that contains one "
               "ClassCEndDeviceLorawanMac device")
 {
 }
 
-CreateNodeContainerOfOneClassCDeviceTest::~CreateNodeContainerOfOneClassCDeviceTest ()
+CreateNodeContainerOfOne::~CreateNodeContainerOfOne ()
 {
 }
 void
-CreateNodeContainerOfOneClassCDeviceTest::DoRun (void)
+CreateNodeContainerOfOne::DoRun (void)
 {
-  NS_LOG_DEBUG ("CreateNodeContainerOfOneClassCDeviceTest");
+  NS_LOG_DEBUG ("CreateNodeContainerOfOne");
 
   NetworkComponents components = InitializeNetwork (1, 1, 2);
 
@@ -531,7 +531,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
   AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
-  AddTestCase (new CreateNodeContainerOfOneClassCDeviceTest, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
