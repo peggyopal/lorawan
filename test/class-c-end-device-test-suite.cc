@@ -494,6 +494,99 @@ ReceiveDownlinkMessageRXC1::DoRun (void)
 }
 
 
+////////////////////////////////////
+// ReceiveDownlinkMessageRX1 Test //
+////////////////////////////////////
+class ReceiveDownlinkMessageRX1 : public TestCase
+{
+public:
+  ReceiveDownlinkMessageRX1 ();
+  virtual ~ReceiveDownlinkMessageRX1 ();
+
+  void OnReceivedPacket (Ptr<Packet const> packet, Ptr<Node> nsNode);
+  void ReceivedPacketAtED (Ptr<Packet const> packet);
+  void SendPacket (Ptr<Node> endDevice, bool requestAck);
+
+private:
+  virtual void DoRun (void);
+  bool m_onReceivedPacket = false;
+  bool m_receivedPacketAtEd = false;
+};
+
+ReceiveDownlinkMessageRX1::ReceiveDownlinkMessageRX1 ()
+  : TestCase ("Verify that packets are properly received and handled "
+              "when received in RX1 for ClassCEndDeviceLorawanMac devices.")
+{
+}
+
+ReceiveDownlinkMessageRX1::~ReceiveDownlinkMessageRX1 ()
+{
+}
+
+void
+ReceiveDownlinkMessageRX1::OnReceivedPacket (Ptr<Packet const> packet, Ptr<Node> nsNode)
+{
+  NS_LOG_DEBUG ("Received a packet at the Network Scheduler");
+  m_onReceivedPacket = true;
+}
+
+void
+ReceiveDownlinkMessageRX1::ReceivedPacketAtED (Ptr<Packet const> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the ED");
+  m_receivedPacketAtEd = true;
+}
+
+void
+ReceiveDownlinkMessageRX1::SendPacket (Ptr<Node> endDevice, bool requestAck)
+{
+  if (requestAck)
+    {
+      endDevice->GetDevice (0)->GetObject<LoraNetDevice> ()->GetMac
+        ()->GetObject<EndDeviceLorawanMac> ()->SetMType
+        (LorawanMacHeader::CONFIRMED_DATA_UP);
+    }
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+void
+ReceiveDownlinkMessageRX1::DoRun (void)
+{
+  NS_LOG_DEBUG ("ReceiveDownlinkMessageRX1");
+
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+  Ptr<Node> nsNode = components.nsNode;
+
+  nsNode->GetApplication (0)->m_scheduler->TraceConnectWithoutContext
+    ("OnReceivedPacket",
+    MakeCallback
+      (&ReceiveDownlinkMessageRX1::OnReceivedPacket,
+      this));
+
+  // Connect the ED's trace source for received packets
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext 
+    ("ReceivedPacket", 
+    MakeCallback 
+      (&ReceiveDownlinkMessageRX1::ReceivedPacketAtED, 
+      this));
+
+  
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageRX1::SendPacket, this,
+                       endDevices.Get (0), true);
+
+  Simulator::Stop (Seconds (8));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacketAtEd == true);
+  NS_ASSERT (m_onReceivedPacket == true);
+}
+
+
 /**************
  * Test Suite *
  **************/
