@@ -339,14 +339,14 @@ UplinkPacketClassC::DoRun (void)
 }
 
 
-/////////////////////////////////////////////
-// SecondReceiveWindowStaysOpenClassC Test //
-/////////////////////////////////////////////
-class SecondReceiveWindowStaysOpenClassC : public TestCase
+////////////////////////////////////
+// ThirdRxcStaysOpenAfterRx2 Test //
+////////////////////////////////////
+class ThirdRxcStaysOpenAfterRx2 : public TestCase
 {
 public:
-  SecondReceiveWindowStaysOpenClassC ();
-  virtual ~SecondReceiveWindowStaysOpenClassC ();
+  ThirdRxcStaysOpenAfterRx2 ();
+  virtual ~ThirdRxcStaysOpenAfterRx2 ();
 
   void NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue);
   void SendPacket (Ptr<Node> endDevice);
@@ -357,26 +357,26 @@ private:
 };
 
 // Add some help text to this case to describe what it is intended to test
-SecondReceiveWindowStaysOpenClassC::SecondReceiveWindowStaysOpenClassC ()
+ThirdRxcStaysOpenAfterRx2::ThirdRxcStaysOpenAfterRx2 ()
   : TestCase ("Verify that CloseSecondReceiveWindow function is only"
               " called once.")
 {
 }
 
 // Reminder that the test case should clean up after itself
-SecondReceiveWindowStaysOpenClassC::~SecondReceiveWindowStaysOpenClassC ()
+ThirdRxcStaysOpenAfterRx2::~ThirdRxcStaysOpenAfterRx2 ()
 {
 }
 
 void
-SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue)
+ThirdRxcStaysOpenAfterRx2::NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue)
 {
   NS_LOG_DEBUG ("Received a packet at the NS");
   m_numContinuousReceiveWindows += 1;
 }
 
 void
-SecondReceiveWindowStaysOpenClassC::SendPacket (Ptr<Node> endDevice)
+ThirdRxcStaysOpenAfterRx2::SendPacket (Ptr<Node> endDevice)
 {
   endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
 }
@@ -384,9 +384,9 @@ SecondReceiveWindowStaysOpenClassC::SendPacket (Ptr<Node> endDevice)
 // This method is the pure virtual method from class TestCase that every
 // TestCase must implement
 void
-SecondReceiveWindowStaysOpenClassC::DoRun (void)
+ThirdRxcStaysOpenAfterRx2::DoRun (void)
 {
-  NS_LOG_DEBUG ("SecondReceiveWindowStaysOpenClassC");
+  NS_LOG_DEBUG ("ThirdRxcStaysOpenAfterRx2");
 
   // Create a bunch of actual devices
   NetworkComponents components = InitializeNetwork (1, 1, 2);
@@ -401,11 +401,11 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
   endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<ClassCEndDeviceLorawanMac>()->TraceConnectWithoutContext 
       ("NumberOfContinuousReceiveWindowCalls",
     MakeCallback
-      (&SecondReceiveWindowStaysOpenClassC::NumberOfOpenSecondReceiveWindowCalls,
+      (&ThirdRxcStaysOpenAfterRx2::NumberOfOpenSecondReceiveWindowCalls,
       this));
 
   // Send a packet
-  Simulator::Schedule (Seconds (1), &SecondReceiveWindowStaysOpenClassC::SendPacket, this,
+  Simulator::Schedule (Seconds (1), &ThirdRxcStaysOpenAfterRx2::SendPacket, this,
                        endDevices.Get (0));
 
   Simulator::Stop (Seconds (5));
@@ -535,7 +535,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
   AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
-  AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
+  AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
 }
 
