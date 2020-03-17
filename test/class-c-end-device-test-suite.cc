@@ -200,7 +200,7 @@ public:
   PacketReceivedInEDPhyLayer ();
   virtual ~PacketReceivedInEDPhyLayer ();
 
-  void PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address);
+  void PacketInEDPhyLayer (Ptr<Packet const> packet, uint32_t address);
   void SendPacket (Ptr<Node> endDevice);
 
 private:
@@ -220,7 +220,7 @@ PacketReceivedInEDPhyLayer::~PacketReceivedInEDPhyLayer ()
 }
 
 void
-PacketReceivedInEDPhyLayer::PacketReceivedInEDPhyLayer (Ptr<Packet const> packet, uint32_t address)
+PacketReceivedInEDPhyLayer::PacketInEDPhyLayer (Ptr<Packet const> packet, uint32_t address)
 {
   NS_LOG_DEBUG ("Sending a packet from the ED Phy Layer");
   m_receivedPacketInEDPhyLayer = true;
@@ -245,7 +245,7 @@ PacketReceivedInEDPhyLayer::DoRun (void)
   endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetPhy ()->GetObject<LoraPhy>()->TraceConnectWithoutContext 
     ("StartSending", 
     MakeCallback 
-      (&PacketReceivedInEDPhyLayer::PacketReceivedInEDPhyLayer, 
+      (&PacketReceivedInEDPhyLayer::PacketInEDPhyLayer, 
       this));
 
   
