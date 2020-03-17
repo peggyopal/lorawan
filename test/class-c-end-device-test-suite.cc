@@ -323,11 +323,11 @@ UplinkPacketClassC::DoRun (void)
   nsNode->GetApplication (0)->TraceConnectWithoutContext
     ("ReceivedPacket",
     MakeCallback
-      (&UplinkPacketClassCDeviceTests::ReceivedPacket,
+      (&UplinkPacketClassC::ReceivedPacket,
       this));
 
   // Send a packet
-  Simulator::Schedule (Seconds (1), &UplinkPacketClassCDeviceTests::SendPacket, this,
+  Simulator::Schedule (Seconds (1), &UplinkPacketClassC::SendPacket, this,
                        endDevices.Get (0));
 
   Simulator::Stop (Seconds (5));
