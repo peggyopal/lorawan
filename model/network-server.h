@@ -99,12 +99,13 @@ public:
 
   Ptr<NetworkStatus> GetNetworkStatus (void);
 
+protected:
+  TracedCallback<Ptr<const Packet>> m_receivedPacket;
+  TracedCallback<Ptr<const Packet>, Ptr<NetworkScheduler>> m_schedulerReceivedPacket;
+
   Ptr<NetworkStatus> m_status;
   Ptr<NetworkController> m_controller;
   Ptr<NetworkScheduler> m_scheduler;
-
-protected:
-  TracedCallback<Ptr<const Packet>> m_receivedPacket;
 };
 
 } // namespace lorawan
