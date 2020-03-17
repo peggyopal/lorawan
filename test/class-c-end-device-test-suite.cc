@@ -191,9 +191,9 @@ CreateNodeContainerOfMany::DoRun (void)
 }
 
 
-///////////////////////////////////////////
-// PacketReceivedInEDPhyLayerClassC Test //
-///////////////////////////////////////////
+/////////////////////////////////////
+// PacketReceivedInEDPhyLayer Test //
+/////////////////////////////////////
 class PacketReceivedInEDPhyLayer : public TestCase
 {
 public:
@@ -262,14 +262,14 @@ PacketReceivedInEDPhyLayer::DoRun (void)
 }
 
 
-////////////////////////////////////////
-// UplinkPacketClassCDeviceTests Test //
-////////////////////////////////////////
-class UplinkPacketClassCDeviceTests : public TestCase
+/////////////////////////////
+// UplinkPacketClassC Test //
+/////////////////////////////
+class UplinkPacketClassC : public TestCase
 {
 public:
-  UplinkPacketClassCDeviceTests ();
-  virtual ~UplinkPacketClassCDeviceTests ();
+  UplinkPacketClassC ();
+  virtual ~UplinkPacketClassC ();
 
   void ReceivedPacket (Ptr<Packet const> packet);
   void SendPacket (Ptr<Node> endDevice);
@@ -280,26 +280,26 @@ private:
 };
 
 // Add some help text to this case to describe what it is intended to test
-UplinkPacketClassCDeviceTests::UplinkPacketClassCDeviceTests ()
+UplinkPacketClassC::UplinkPacketClassC ()
   : TestCase ("Verify that the NetworkServer can receive"
               " packets sent in the uplink by class C devices")
 {
 }
 
 // Reminder that the test case should clean up after itself
-UplinkPacketClassCDeviceTests::~UplinkPacketClassCDeviceTests ()
+UplinkPacketClassC::~UplinkPacketClassC ()
 {
 }
 
 void
-UplinkPacketClassCDeviceTests::ReceivedPacket (Ptr<Packet const> packet)
+UplinkPacketClassC::ReceivedPacket (Ptr<Packet const> packet)
 {
   NS_LOG_DEBUG ("Received a packet at the NS");
   m_receivedPacket = true;
 }
 
 void
-UplinkPacketClassCDeviceTests::SendPacket (Ptr<Node> endDevice)
+UplinkPacketClassC::SendPacket (Ptr<Node> endDevice)
 {
   endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
 }
@@ -307,9 +307,9 @@ UplinkPacketClassCDeviceTests::SendPacket (Ptr<Node> endDevice)
 // This method is the pure virtual method from class TestCase that every
 // TestCase must implement
 void
-UplinkPacketClassCDeviceTests::DoRun (void)
+UplinkPacketClassC::DoRun (void)
 {
-  NS_LOG_DEBUG ("UplinkPacketClassCDeviceTests");
+  NS_LOG_DEBUG ("UplinkPacketClassC");
 
   // Create a bunch of actual devices
   NetworkComponents components = InitializeNetwork (1, 1, 2);
@@ -534,7 +534,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
   AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
-  AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
+  AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
   AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageClassC, TestCase::QUICK);
 }
