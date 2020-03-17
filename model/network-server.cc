@@ -49,6 +49,14 @@ NetworkServer::GetTypeId (void)
                      "Trace source that is fired when a packet arrives at the Network Server",
                      MakeTraceSourceAccessor (&NetworkServer::m_receivedPacket),
                      "ns3::Packet::TracedCallback")
+    // .AddTraceSource ("OnReceivedPacket",
+    //                  "Trace source that is fired when a packet arrives at the Network Scheduler",
+    //                  MakeTraceSourceAccessor (&NetworkScheduler::m_onReceivedPacket),
+    //                  "ns3::Packet::TracedCallback")
+    .AddTraceSource ("SchedulerReceivedPacket",
+                     "Trace source that is fired when a packet arrives at the Network Scheduler",
+                     MakeTraceSourceAccessor (&NetworkServer::m_schedulerReceivedPacket),
+                     "ns3::Packet::TracedCallback")
     .SetGroupName ("lorawan");
   return tid;
 }
@@ -163,6 +171,8 @@ NetworkServer::Receive (Ptr<NetDevice> device, Ptr<const Packet> packet,
 
   // Inform the scheduler of the newly arrived packet
   m_scheduler->OnReceivedPacket (packet);
+
+  m_schedulerReceivedPacket(packet, m_scheduler);
 
   // Inform the status of the newly arrived packet
   m_status->OnReceivedPacket (packet, address);
