@@ -417,14 +417,14 @@ SecondReceiveWindowStaysOpenClassC::DoRun (void)
 }
 
 
-////////////////////////////////
-// DownlinkMessageClassC Test //
-////////////////////////////////
-class DownlinkMessageClassC : public TestCase
+/////////////////////////////////////
+// ReceiveDownlinkMessageRXC1 Test //
+/////////////////////////////////////
+class ReceiveDownlinkMessageRXC1 : public TestCase
 {
 public:
-  DownlinkMessageClassC ();
-  virtual ~DownlinkMessageClassC ();
+  ReceiveDownlinkMessageRXC1 ();
+  virtual ~ReceiveDownlinkMessageRXC1 ();
 
   void ReceivedPacketAtED (Ptr<Packet const> packet);
   void SendPacket (Ptr<Node> endDevice, bool requestAck);
@@ -434,25 +434,25 @@ private:
   bool m_receivedPacketAtEd = false;
 };
 
-DownlinkMessageClassC::DownlinkMessageClassC ()
+ReceiveDownlinkMessageRXC1::ReceiveDownlinkMessageRXC1 ()
   : TestCase ("Verify creating a NodeContainer that contains many "
               "ClassCEndDeviceLorawanMac devices")
 {
 }
 
-DownlinkMessageClassC::~DownlinkMessageClassC ()
+ReceiveDownlinkMessageRXC1::~ReceiveDownlinkMessageRXC1 ()
 {
 }
 
 void
-DownlinkMessageClassC::ReceivedPacketAtED (Ptr<Packet const> packet)
+ReceiveDownlinkMessageRXC1::ReceivedPacketAtED (Ptr<Packet const> packet)
 {
   NS_LOG_DEBUG ("Received a packet at the ED");
   m_receivedPacketAtEd = true;
 }
 
 void
-DownlinkMessageClassC::SendPacket (Ptr<Node> endDevice, bool requestAck)
+ReceiveDownlinkMessageRXC1::SendPacket (Ptr<Node> endDevice, bool requestAck)
 {
   if (requestAck)
     {
@@ -464,9 +464,9 @@ DownlinkMessageClassC::SendPacket (Ptr<Node> endDevice, bool requestAck)
 }
 
 void
-DownlinkMessageClassC::DoRun (void)
+ReceiveDownlinkMessageRXC1::DoRun (void)
 {
-  NS_LOG_DEBUG ("DownlinkMessageClassC");
+  NS_LOG_DEBUG ("ReceiveDownlinkMessageRXC1");
 
   NetworkComponents components = InitializeNetwork (1, 1, 2);
 
@@ -476,12 +476,12 @@ DownlinkMessageClassC::DoRun (void)
   endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext 
     ("ReceivedPacket", 
     MakeCallback 
-      (&DownlinkMessageClassC::ReceivedPacketAtED, 
+      (&ReceiveDownlinkMessageRXC1::ReceivedPacketAtED, 
       this));
 
   
   // Send a packet
-  Simulator::Schedule (Seconds (1), &DownlinkMessageClassC::SendPacket, this,
+  Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageRXC1::SendPacket, this,
                        endDevices.Get (0), true);
 
   Simulator::Stop (Seconds (8));
@@ -536,7 +536,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
   AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
-  AddTestCase (new DownlinkMessageClassC, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
