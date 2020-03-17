@@ -149,31 +149,31 @@ CreateNodeContainerOfOne::DoRun (void)
 
 
 /////////////////////////////////////////////////////
-// CreateNodeContainerOfManyClassCDeviceTests Test //
+// CreateNodeContainerOfMany Test //
 /////////////////////////////////////////////////////
-class CreateNodeContainerOfManyClassCDeviceTests : public TestCase
+class CreateNodeContainerOfMany : public TestCase
 {
 public:
-  CreateNodeContainerOfManyClassCDeviceTests ();
-  virtual ~CreateNodeContainerOfManyClassCDeviceTests ();
+  CreateNodeContainerOfMany ();
+  virtual ~CreateNodeContainerOfMany ();
 
 private:
   virtual void DoRun (void);
 };
 
-CreateNodeContainerOfManyClassCDeviceTests::CreateNodeContainerOfManyClassCDeviceTests ()
+CreateNodeContainerOfMany::CreateNodeContainerOfMany ()
   : TestCase ("Verify creating a NodeContainer that contains many "
               "ClassCEndDeviceLorawanMac devices")
 {
 }
 
-CreateNodeContainerOfManyClassCDeviceTests::~CreateNodeContainerOfManyClassCDeviceTests ()
+CreateNodeContainerOfMany::~CreateNodeContainerOfMany ()
 {
 }
 void
-CreateNodeContainerOfManyClassCDeviceTests::DoRun (void)
+CreateNodeContainerOfMany::DoRun (void)
 {
-  NS_LOG_DEBUG ("CreateNodeContainerOfManyClassCDeviceTests");
+  NS_LOG_DEBUG ("CreateNodeContainerOfMany");
 
   NetworkComponents components = InitializeNetwork (10, 1, 2);
 
@@ -532,7 +532,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
   AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
   AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
-  AddTestCase (new CreateNodeContainerOfManyClassCDeviceTests, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
   AddTestCase (new PacketReceivedInEDPhyLayerClassC, TestCase::QUICK);
   AddTestCase (new UplinkPacketClassCDeviceTests, TestCase::QUICK);
   AddTestCase (new SecondReceiveWindowStaysOpenClassC, TestCase::QUICK);
