@@ -559,7 +559,7 @@ ReceiveDownlinkMessageRX1::DoRun (void)
   NodeContainer endDevices = components.endDevices;
   Ptr<Node> nsNode = components.nsNode;
 
-  nsNode->GetApplication (0)->m_scheduler->TraceConnectWithoutContext
+  nsNode->GetApplication (0)->GetObject<NetworkServer>()->m_scheduler->TraceConnectWithoutContext
     ("OnReceivedPacket",
     MakeCallback
       (&ReceiveDownlinkMessageRX1::OnReceivedPacket,
