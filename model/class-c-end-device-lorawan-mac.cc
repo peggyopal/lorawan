@@ -157,7 +157,7 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               Simulator::Cancel (m_continuousReceiveWindow3);
 
               // Reschedule cancelled events
-              this->ScheduleEvents(Seconds(0), Rx1DelayRemaining, Rx2DelayRemaining);
+              this->ScheduleEvents(Rx2DelayRemaining, Seconds(0) - Seconds(1), Rx2DelayRemaining);
             }    
           else if (!m_continuousReceiveWindow3.IsExpired () && 
                    m_firstReceiveWindow.IsExpired () &&
