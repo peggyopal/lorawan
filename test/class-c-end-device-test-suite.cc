@@ -802,7 +802,7 @@ ReceiveDownlinkMessageRX2::ReceivedPacketAtScheduler (Ptr<Packet const> packet, 
   
   Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
 
-  Simulator::Schedule (Seconds (0.01), &ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+  Simulator::Schedule (Seconds (1.1), &ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
@@ -888,25 +888,26 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("SimpleGatewayLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-  LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
+  // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
   LogComponentEnableAll (LOG_PREFIX_FUNC);
   LogComponentEnableAll (LOG_PREFIX_NODE);
   LogComponentEnableAll (LOG_PREFIX_TIME);
 
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-  AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
-  AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
-  AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
-  AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
-  AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
-  AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
-  AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
-  AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
-  AddTestCase (new ReceiveDownlinkMessageRX1, TestCase::QUICK);
-  AddTestCase (new ReceiveDownlinkMessageRXC2, TestCase::QUICK);
+  // AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
+  // AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
+  // AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
+  // AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
+  // AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
+  // AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
+  // AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
+  // AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
+  // AddTestCase (new ReceiveDownlinkMessageRX1, TestCase::QUICK);
+  // AddTestCase (new ReceiveDownlinkMessageRXC2, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageRX2, TestCase::QUICK);
 }
 
