@@ -739,6 +739,128 @@ ReceiveDownlinkMessageRXC2::DoRun (void)
 }
 
 
+////////////////////////////////////
+// ReceiveDownlinkMessageRX2 Test //
+////////////////////////////////////
+class ReceiveDownlinkMessageRX2 : public TestCase
+{
+public:
+  ReceiveDownlinkMessageRX2 ();
+  virtual ~ReceiveDownlinkMessageRX2 ();
+
+  void RescheduleReceiveWindowOpportunity (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler);
+  void ReceivedPacketAtScheduler (Ptr<Packet const> packet, Ptr<NetworkScheduler> nsNode);
+  void ReceivedPacketAtED (Ptr<Packet const> packet);
+  void SendPacket (Ptr<Node> endDevice, bool requestAck);
+
+private:
+  virtual void DoRun (void);
+  bool m_receivedPacketAtEd = false;
+};
+
+ReceiveDownlinkMessageRX2::ReceiveDownlinkMessageRX2 ()
+  : TestCase ("Verify that packets are properly received and handled "
+              "when received in RX2 for ClassCEndDeviceLorawanMac devices.")
+{
+}
+
+ReceiveDownlinkMessageRX2::~ReceiveDownlinkMessageRX2 ()
+{
+}
+
+void
+ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler)
+{
+  NS_LOG_DEBUG ("Rescheduling OnReceiveWindowOpportunity");
+
+  // Get the current packet's frame counter
+  Ptr<Packet> packetCopy = packet->Copy ();
+  LorawanMacHeader receivedMacHdr;
+  packetCopy->RemoveHeader (receivedMacHdr);
+  LoraFrameHeader receivedFrameHdr;
+  receivedFrameHdr.SetAsUplink ();
+  packetCopy->RemoveHeader (receivedFrameHdr);
+
+  // It's possible that we already received the same packet from another
+  // gateway.
+  // - Extract the address
+  LoraDeviceAddress deviceAddress = receivedFrameHdr.GetAddress ();
+
+  // Get the device's MAC layer
+  Ptr<NetworkStatus> networkStatus = networkScheduler->GetNetworkStatus ();
+  Ptr<EndDeviceLorawanMac> edLorawanMac = networkStatus->GetEndDeviceStatus (packet)->GetMac ();
+  NS_ASSERT (edLorawanMac != 0);
+
+  // Call OnReceiveWindowOpportunity event
+  networkScheduler->OnReceiveWindowOpportunity(deviceAddress, 2, edLorawanMac);
+}
+
+void
+ReceiveDownlinkMessageRX2::ReceivedPacketAtScheduler (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler)
+{
+  NS_LOG_DEBUG ("Received a packet at the Network Server");
+  
+  Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
+
+  Simulator::Schedule (Seconds (0.01), &ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+}
+
+void
+ReceiveDownlinkMessageRX2::ReceivedPacketAtED (Ptr<Packet const> packet)
+{
+  NS_LOG_DEBUG ("Received a packet at the ED");
+  m_receivedPacketAtEd = true;
+}
+
+void
+ReceiveDownlinkMessageRX2::SendPacket (Ptr<Node> endDevice, bool requestAck)
+{
+  if (requestAck)
+    {
+      endDevice->GetDevice (0)->GetObject<LoraNetDevice> ()->GetMac
+        ()->GetObject<EndDeviceLorawanMac> ()->SetMType
+        (LorawanMacHeader::CONFIRMED_DATA_UP);
+    }
+  endDevice->GetDevice (0)->Send (Create<Packet> (20), Address (), 0);
+}
+
+void
+ReceiveDownlinkMessageRX2::DoRun (void)
+{
+  NS_LOG_DEBUG ("ReceiveDownlinkMessageRX2");
+
+  NetworkComponents components = InitializeNetwork (1, 1, 2);
+
+  NodeContainer endDevices = components.endDevices;
+  Ptr<Node> nsNode = components.nsNode;
+
+  nsNode->GetApplication (0)->TraceConnectWithoutContext
+    ("SchedulerReceivedPacket",
+    MakeCallback
+      (&ReceiveDownlinkMessageRX2::ReceivedPacketAtScheduler,
+      this));
+
+  // Connect the ED's trace source for received packets
+  endDevices.Get (0)->GetDevice (0)->GetObject<LoraNetDevice>()->GetMac ()->GetObject<EndDeviceLorawanMac>()->TraceConnectWithoutContext 
+    ("ReceivedPacket", 
+    MakeCallback 
+      (&ReceiveDownlinkMessageRX2::ReceivedPacketAtED, 
+      this));
+
+  
+  // Send a packet
+  Simulator::Schedule (Seconds (1), &ReceiveDownlinkMessageRX2::SendPacket, this,
+                       endDevices.Get (0), true);
+
+  Simulator::Stop (Seconds (8));
+  Simulator::Run ();
+  Simulator::Destroy ();
+
+  // Check that we received the packet
+  NS_ASSERT (m_receivedPacketAtEd == true);
+}
+
+
 /**************
  * Test Suite *
  **************/
@@ -775,16 +897,17 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   LogComponentEnableAll (LOG_PREFIX_TIME);
 
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-  // AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
-  // AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
-  // AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
-  // AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
-  // AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
-  // AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
-  // AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
-  // AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
-  // AddTestCase (new ReceiveDownlinkMessageRX1, TestCase::QUICK);
+  AddTestCase (new InitializeLorawanMacClassCEndDeviceTest, TestCase::QUICK);
+  AddTestCase (new InitializeDeviceClassTest, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfOne, TestCase::QUICK);
+  AddTestCase (new CreateNodeContainerOfMany, TestCase::QUICK);
+  AddTestCase (new PacketReceivedInEDPhyLayer, TestCase::QUICK);
+  AddTestCase (new UplinkPacketClassC, TestCase::QUICK);
+  AddTestCase (new ThirdRxcStaysOpenAfterRx2, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageRXC1, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageRX1, TestCase::QUICK);
   AddTestCase (new ReceiveDownlinkMessageRXC2, TestCase::QUICK);
+  AddTestCase (new ReceiveDownlinkMessageRX2, TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite
