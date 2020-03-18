@@ -503,13 +503,13 @@ public:
   ReceiveDownlinkMessageRX1 ();
   virtual ~ReceiveDownlinkMessageRX1 ();
 
-  void OnReceivedPacket (Ptr<Packet const> packet, Ptr<Node> nsNode);
+  void RescheduleReceiveWindowOpportunity (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler);
+  void ReceivedPacketAtScheduler (Ptr<Packet const> packet, Ptr<NetworkScheduler> nsNode);
   void ReceivedPacketAtED (Ptr<Packet const> packet);
   void SendPacket (Ptr<Node> endDevice, bool requestAck);
 
 private:
   virtual void DoRun (void);
-  bool m_onReceivedPacket = false;
   bool m_receivedPacketAtEd = false;
 };
 
@@ -524,10 +524,40 @@ ReceiveDownlinkMessageRX1::~ReceiveDownlinkMessageRX1 ()
 }
 
 void
-ReceiveDownlinkMessageRX1::OnReceivedPacket (Ptr<Packet const> packet, Ptr<Node> nsNode)
+ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler)
 {
-  NS_LOG_DEBUG ("Received a packet at the Network Scheduler");
-  m_onReceivedPacket = true;
+  NS_LOG_DEBUG ("Rescheduling OnReceiveWindowOpportunity");
+
+  // Get the current packet's frame counter
+  Ptr<Packet> packetCopy = packet->Copy ();
+  LorawanMacHeader receivedMacHdr;
+  packetCopy->RemoveHeader (receivedMacHdr);
+  LoraFrameHeader receivedFrameHdr;
+  receivedFrameHdr.SetAsUplink ();
+  packetCopy->RemoveHeader (receivedFrameHdr);
+
+  // It's possible that we already received the same packet from another
+  // gateway.
+  // - Extract the address
+  LoraDeviceAddress deviceAddress = receivedFrameHdr.GetAddress ();
+
+  // Get the device's MAC layer
+  Ptr<NetworkStatus> networkStatus = networkScheduler->GetNetworkStatus ();
+  Ptr<EndDeviceLorawanMac> edLorawanMac = networkStatus->GetEndDeviceStatus (packet)->GetMac ();
+  NS_ASSERT (edLorawanMac != 0);
+
+  // Call OnReceiveWindowOpportunity event
+  networkScheduler->OnReceiveWindowOpportunity(deviceAddress, 2, edLorawanMac);
+}
+
+void
+ReceiveDownlinkMessageRX1::ReceivedPacketAtScheduler (Ptr<Packet const> packet, Ptr<NetworkScheduler> networkScheduler)
+{
+  NS_LOG_DEBUG ("Received a packet at the Network Server");
+  
+  Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
+
+  Simulator::Schedule (Seconds (0.01), &ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
@@ -559,10 +589,10 @@ ReceiveDownlinkMessageRX1::DoRun (void)
   NodeContainer endDevices = components.endDevices;
   Ptr<Node> nsNode = components.nsNode;
 
-  nsNode->GetApplication (0)->GetObject<NetworkServer>()->m_scheduler->TraceConnectWithoutContext
-    ("OnReceivedPacket",
+  nsNode->GetApplication (0)->TraceConnectWithoutContext
+    ("SchedulerReceivedPacket",
     MakeCallback
-      (&ReceiveDownlinkMessageRX1::OnReceivedPacket,
+      (&ReceiveDownlinkMessageRX1::ReceivedPacketAtScheduler,
       this));
 
   // Connect the ED's trace source for received packets
@@ -583,7 +613,6 @@ ReceiveDownlinkMessageRX1::DoRun (void)
 
   // Check that we received the packet
   NS_ASSERT (m_receivedPacketAtEd == true);
-  NS_ASSERT (m_onReceivedPacket == true);
 }
 
 
@@ -616,7 +645,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   // LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-  // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
+  LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
   LogComponentEnableAll (LOG_PREFIX_FUNC);
   LogComponentEnableAll (LOG_PREFIX_NODE);
