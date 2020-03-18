@@ -305,7 +305,7 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
     {
       // Close RXC when RX1 opens
       RxDelay = Simulator::GetDelayLeft (m_firstReceiveWindow);
-      m_closeContinuousWindow = Simulator::Schedule (RxDelay,
+      m_closeContinuousWindow = Simulator::Schedule (RxDelay - Seconds (0.000000001),
                                                      &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
                                                      this);
     }
@@ -313,7 +313,7 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
     {
       // Close RXC when RX2 opens
       RxDelay = Simulator::GetDelayLeft (m_secondReceiveWindow);
-      m_closeContinuousWindow = Simulator::Schedule (RxDelay,
+      m_closeContinuousWindow = Simulator::Schedule (RxDelay - Seconds (0.000000001),
                                                      &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow, 
                                                      this);
     }
