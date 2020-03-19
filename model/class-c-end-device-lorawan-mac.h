@@ -67,6 +67,8 @@ public:
    */
   virtual void TxFinished (Ptr<const Packet> packet);
 
+  virtual void ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw);
+
 protected:
   /**
    * The event of the first receive window opening.

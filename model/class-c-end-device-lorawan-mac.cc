@@ -296,6 +296,8 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
 { 
   NS_LOG_FUNCTION_NOARGS ();
 
+  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RXC);
+
   Time RxDelay = Time(0);
 
   m_numContinuousReceiveWindows += 1;
@@ -313,6 +315,8 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
     }
   else if (m_numContinuousReceiveWindows == 2)
     {
+      SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RXC2);
+
       // Close RXC when RX2 opens
       RxDelay = Simulator::GetDelayLeft (m_secondReceiveWindow);
       m_closeContinuousWindow = Simulator::Schedule (RxDelay - Seconds (0.000000001),
@@ -350,6 +354,15 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   // Schedule the opening of the first occurence of the continuous receive window
   m_continuousReceiveWindow1 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
                                                        this);  
+}
+
+void
+ClassCEndDeviceLorawanMac::ResetReceiveWindows (enum ClassCReceiveWindows rw)
+{
+  if (rw == EndDeviceLorawanMac::RXC2)
+    {
+      NS_LOG_DEBUG ("yoo");
+    }
 }
 
 } /* namespace lorawan */
