@@ -254,7 +254,7 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
                                                   &ClassCEndDeviceLorawanMac::OpenFirstReceiveWindow, 
                                                   this);
 
-      m_continuousReceiveWindow2 = Simulator::Schedule (Rx1Open + firstReceiveWindowDuration,
+      m_continuousReceiveWindow2 = Simulator::Schedule (Rx1Open + firstReceiveWindowDuration + Seconds (0.000000001),
                                                         &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
                                                         this);
     }
@@ -265,8 +265,9 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
 
       // m_secondReceiveWindow might need to be scheduled first...
       // TODO: figure it out
-      m_continuousReceiveWindow2 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                                                           this);
+      m_continuousReceiveWindow2 = Simulator::Schedule (Seconds (0.000000001),
+                                                        &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                        this);
     }
   
   if (Rx2Open.IsStrictlyPositive ())
@@ -275,7 +276,7 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
                                                    &ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                                                    this);
 
-      m_continuousReceiveWindow3 = Simulator::Schedule (Rx2Open + secondReceiveWindowDuration,
+      m_continuousReceiveWindow3 = Simulator::Schedule (Rx2Open + secondReceiveWindowDuration + Seconds (0.000000001),
                                                         &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
                                                         this);
     }
@@ -284,8 +285,9 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
       m_closeSecondWindow = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::CloseSecondReceiveWindow,
                                                     this);
 
-      m_continuousReceiveWindow3 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                                                               this);      
+      m_continuousReceiveWindow3 = Simulator::Schedule (Seconds (0.000000001), 
+                                                        &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                        this);      
     }
 }
 
