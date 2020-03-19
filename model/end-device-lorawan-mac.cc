@@ -701,6 +701,8 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
+  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RX1);
+
   // Set Phy in Standby mode
   m_phy->GetObject<EndDeviceLoraPhy> ()->SwitchToStandby ();
 
@@ -744,12 +746,19 @@ EndDeviceLorawanMac::CloseFirstReceiveWindow (void)
       phy->SwitchToSleep ();
       break;
     }
+
+  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::NONE);
 }
 
 void
 EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
+
+  if (m_deviceCurrentReceiveWindow == EndDeviceLorawanMac::NONE) 
+    {
+      SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RX2); 
+    }
 
   // Check for receiver status: if it's locked on a packet, don't open this
   // window at all.
@@ -819,6 +828,9 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
     case EndDeviceLoraPhy::RX:
       // PHY is receiving: let it finish
       NS_LOG_DEBUG ("PHY is receiving: Receive will handle the result.");
+      // TODO reset windows here... 
+      NS_LOG_DEBUG ("Current Receive Window: " << m_deviceCurrentReceiveWindow);
+      ResetReceiveWindows (m_deviceCurrentReceiveWindow);
       return;
     case EndDeviceLoraPhy::STANDBY:
       // Turn PHY layer to sleep
@@ -826,6 +838,8 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
       break;
     }
   
+  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::NONE);
+
   if (m_deviceClass == CLASS_A)
     {
     if (m_retxParams.waitingAck)
@@ -874,7 +888,18 @@ EndDeviceLorawanMac::GetDeviceClass ()
   return m_deviceClass;
 }
 
-void EndDeviceLorawanMac::resetRetransmissionParameters ()
+void 
+EndDeviceLorawanMac::ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw)
+{}
+
+void
+EndDeviceLorawanMac::SetDeviceCurrentReceieveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw)
+{
+  m_deviceCurrentReceiveWindow = rw;
+}
+
+void 
+EndDeviceLorawanMac::resetRetransmissionParameters ()
 {
   m_retxParams.waitingAck = false;
   m_retxParams.retxLeft = m_maxNumbTx;

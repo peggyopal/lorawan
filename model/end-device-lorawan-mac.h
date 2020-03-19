@@ -47,6 +47,16 @@ public:
     CLASS_C
   };
 
+  enum ClassCReceiveWindows
+  {
+    RXC,
+    RX1,
+    RXC2,
+    RX2,
+    RXC3,
+    NONE
+  };
+
   static TypeId GetTypeId (void);
 
   EndDeviceLorawanMac ();
@@ -143,6 +153,10 @@ public:
   /////////////////////////
 
   virtual enum DeviceClass GetDeviceClass (void);
+
+  virtual void ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw);
+
+  void SetDeviceCurrentReceieveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw);
 
   /**
   * Reset retransmission parameters contained in the structure LoraRetxParams
@@ -610,6 +624,8 @@ private:
   LorawanMacHeader::MType m_mType;
 
   uint8_t m_currentFCnt;
+
+  enum ClassCReceiveWindows m_deviceCurrentReceiveWindow;
 
 };
 
