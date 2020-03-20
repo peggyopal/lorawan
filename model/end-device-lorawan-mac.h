@@ -154,9 +154,11 @@ public:
 
   virtual enum DeviceClass GetDeviceClass (void);
 
-  virtual void ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw);
+  virtual void ResetReceiveWindows (enum ClassCReceiveWindows rw);
 
-  void SetDeviceCurrentReceieveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw);
+  void SetDeviceCurrentReceiveWindow (enum ClassCReceiveWindows rw);
+
+  enum ClassCReceiveWindows GetDeviceCurrentReceiveWindow (void);
 
   /**
   * Reset retransmission parameters contained in the structure LoraRetxParams
