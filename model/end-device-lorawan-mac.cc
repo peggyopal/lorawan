@@ -701,7 +701,7 @@ EndDeviceLorawanMac::OpenFirstReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RX1);
+  SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::RX1);
 
   // Set Phy in Standby mode
   m_phy->GetObject<EndDeviceLoraPhy> ()->SwitchToStandby ();
@@ -747,7 +747,7 @@ EndDeviceLorawanMac::CloseFirstReceiveWindow (void)
       break;
     }
 
-  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::NONE);
+  SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::NONE);
 }
 
 void
@@ -755,9 +755,9 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  if (m_deviceCurrentReceiveWindow == EndDeviceLorawanMac::NONE) 
+  if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::NONE) 
     {
-      SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::RX2); 
+      SetDeviceCurrentReceiveWindow (EndDeviceLorawanMac::RX2); 
     }
 
   // Check for receiver status: if it's locked on a packet, don't open this
@@ -793,16 +793,15 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
       )
      )
     {
-      m_closeSecondWindow = Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
+      Time delay = Seconds (m_receiveWindowDurationInSymbols*tSym);
+
+      // if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC)
+      //   {
+      //     delay = delay - Seconds (0.000000001);
+      //   }
+
+      m_closeSecondWindow = Simulator::Schedule (delay,
                                                  &EndDeviceLorawanMac::CloseSecondReceiveWindow, this);
-    
-    // if (m_deviceClass == CLASS_C)
-    //   {
-    //     // this->GetObject<ClassCEndDeviceLorawanMac> ()->OpenContinuousReceiveWindow (Seconds (m_receiveWindowDurationInSymbols*tSym));
-    //     Simulator::Schedule (Seconds (m_receiveWindowDurationInSymbols*tSym),
-    //                          &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-    //                          this->GetObject<ClassCEndDeviceLorawanMac> ());
-    //   }
     }    
 }
 
@@ -810,6 +809,7 @@ void
 EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
+  NS_LOG_DEBUG ("Closing RW: " << GetDeviceCurrentReceiveWindow ());
 
   Ptr<EndDeviceLoraPhy> phy = m_phy->GetObject<EndDeviceLoraPhy> ();
 
@@ -838,7 +838,7 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
       break;
     }
   
-  SetDeviceCurrentReceieveWindow(EndDeviceLorawanMac::NONE);
+  SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::NONE);
 
   if (m_deviceClass == CLASS_A)
     {
@@ -893,9 +893,15 @@ EndDeviceLorawanMac::ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWind
 {}
 
 void
-EndDeviceLorawanMac::SetDeviceCurrentReceieveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw)
+EndDeviceLorawanMac::SetDeviceCurrentReceiveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw)
 {
   m_deviceCurrentReceiveWindow = rw;
+}
+
+enum EndDeviceLorawanMac::ClassCReceiveWindows
+EndDeviceLorawanMac::GetDeviceCurrentReceiveWindow (void)
+{
+  return m_deviceCurrentReceiveWindow;
 }
 
 void 
