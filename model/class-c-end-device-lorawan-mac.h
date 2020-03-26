@@ -96,6 +96,9 @@ protected:
      */
   EventId m_closeContinuousWindow;
 
+  Time m_rx1DelayRemaining;
+  Time m_rx2DelayRemaining;
+
 }; /* ClassCEndDeviceLorawanMac */
 
 } /* namespace lorawan */

@@ -46,6 +46,8 @@ return tid;
 }
 
 ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac () 
+  : m_rx1DelayRemaining (Seconds (0.0)),
+    m_rx2DelayRemaining (Seconds (0.0))
 {
   NS_LOG_FUNCTION (this);
 
@@ -103,12 +105,18 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
 
       Time Rx1DelayRemaining = Time(0);
       Time Rx2DelayRemaining = Time(0);
-      Time RxcCloseDelayRemaining = Time(0);
-
+      // Time RxcCloseDelayRemaining = Time(0);
 
       // Keep track of time remaining before the next events are to execute
       Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
       Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
+
+      if (m_rx1DelayRemaining != Time (Seconds (0.0)) || m_rx2DelayRemaining != Time (Seconds (0.0)))
+        {
+          Rx1DelayRemaining = m_rx1DelayRemaining;
+          Rx2DelayRemaining = m_rx2DelayRemaining;
+          NS_LOG_DEBUG (Rx1DelayRemaining << " " << Rx2DelayRemaining);
+        }
 
       if (messageForUs)
         {
@@ -117,9 +125,10 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
           // If it exists, check which receive window the packet was
           // received in.  
           // Note: A scheduled event is marked as expired as soon as it starts
-          if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC)//m_continuousReceiveWindow1.IsExpired () && 
-              // !m_firstReceiveWindow.IsExpired () &&
-              // !m_secondReceiveWindow.IsExpired ())
+          if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC)
+          // if (m_continuousReceiveWindow1.IsExpired () && 
+          //     !m_firstReceiveWindow.IsExpired () &&
+          //     !m_secondReceiveWindow.IsExpired ())
             {
               NS_LOG_DEBUG ("Packet was received before RX1");
               
@@ -132,9 +141,10 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               // Reschedule cancelled events
               this->ScheduleEvents(Rx1DelayRemaining, Rx1DelayRemaining, Rx2DelayRemaining);
             }
-          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RX1)//!m_continuousReceiveWindow2.IsExpired () && 
-                  //  m_firstReceiveWindow.IsExpired () &&
-                  //  !m_secondReceiveWindow.IsExpired ())
+          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RX1)
+          // else if (!m_continuousReceiveWindow2.IsExpired () && 
+          //          m_firstReceiveWindow.IsExpired () &&
+          //          !m_secondReceiveWindow.IsExpired ())
             {
               NS_LOG_DEBUG ("Packet was received in RX1");
 
@@ -146,9 +156,10 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               // Reschedule cancelled events
               this->ScheduleEvents(Seconds(0) - Seconds(1), Rx1DelayRemaining, Rx2DelayRemaining);
             }    
-          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC2)//m_continuousReceiveWindow2.IsExpired () && 
-                  //  m_firstReceiveWindow.IsExpired () &&
-                  //  !m_secondReceiveWindow.IsExpired ())
+          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC2)
+          // else if (m_continuousReceiveWindow2.IsExpired () && 
+          //          m_firstReceiveWindow.IsExpired () &&
+          //          !m_secondReceiveWindow.IsExpired ())
             {
               NS_LOG_DEBUG ("Packet was received after RX1 but before RX2");
 
@@ -159,7 +170,8 @@ ClassCEndDeviceLorawanMac::Receive (Ptr<Packet const> packet)
               // Reschedule cancelled events
               this->ScheduleEvents(Rx2DelayRemaining, Seconds(0) - Seconds(1), Rx2DelayRemaining);
             }    
-          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RX2)//!m_continuousReceiveWindow3.IsExpired () && 
+          else if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RX2)
+          // else if (!m_continuousReceiveWindow3.IsExpired () &&
                   //  m_firstReceiveWindow.IsExpired () &&
                   //  m_secondReceiveWindow.IsExpired ())
             {
@@ -243,7 +255,7 @@ ClassCEndDeviceLorawanMac::ScheduleEvents (Time RxcClose, Time Rx1Open, Time Rx2
 
   if (RxcClose.IsPositive ())
     {
-      m_closeContinuousWindow = Simulator::Schedule (RxcClose,
+      m_closeContinuousWindow = Simulator::Schedule (RxcClose - Seconds (0.000000001),
                                                      &ClassCEndDeviceLorawanMac::CloseContinuousReceiveWindow,
                                                      this);
     }
@@ -296,6 +308,7 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
 { 
   NS_LOG_FUNCTION_NOARGS ();
 
+  // This is where if windows are being reset... This will be set to RXC3?
   if (GetDeviceCurrentReceiveWindow () != EndDeviceLorawanMac::RXC)
     {
       SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::RXC3);
@@ -363,31 +376,39 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
 void
 ClassCEndDeviceLorawanMac::ResetReceiveWindows (enum ClassCReceiveWindows rw)
 {
-  Time Rx1DelayRemaining = Time(0);
-  Time Rx2DelayRemaining = Time(0);
-  Time RxcCloseDelayRemaining = Time(0);
-
+  NS_LOG_FUNCTION (this << rw);
+  // Time RxcCloseDelayRemaining = Time(0);
 
   // Keep track of time remaining before the next events are to execute
-  Rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
-  Rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
+  m_rx1DelayRemaining = Simulator::GetDelayLeft (m_firstReceiveWindow);
+  m_rx2DelayRemaining = Simulator::GetDelayLeft (m_secondReceiveWindow);
   
-  if (rw == EndDeviceLorawanMac::RXC2)
+  if (rw == EndDeviceLorawanMac::RXC)
     {
-      NS_LOG_DEBUG ("yoo");
-
       Simulator::Cancel (m_closeContinuousWindow);
+      Simulator::Cancel (m_firstReceiveWindow);
+      Simulator::Cancel (m_continuousReceiveWindow2);
       Simulator::Cancel (m_secondReceiveWindow);
       Simulator::Cancel (m_continuousReceiveWindow3);
-
-      // if (Rx2DelayRemaining.IsZero ()) 
-      //   {
-      //     Rx2DelayRemaining = Seconds(0.1);
-      //   }
-
-      // // Reschedule cancelled events
-      // this->ScheduleEvents(Rx2DelayRemaining, Seconds(0) - Seconds(1), Rx2DelayRemaining);
     }
+  else if (rw == EndDeviceLorawanMac::RX1)
+    {
+      Simulator::Cancel (m_closeFirstWindow);
+      Simulator::Cancel (m_continuousReceiveWindow2);
+      Simulator::Cancel (m_secondReceiveWindow);
+      Simulator::Cancel (m_continuousReceiveWindow3);
+    }
+  // else if (rw == EndDeviceLorawanMac::RXC2)
+  //   {
+  //     Simulator::Cancel (m_closeContinuousWindow);
+  //     Simulator::Cancel (m_secondReceiveWindow);
+  //     Simulator::Cancel (m_continuousReceiveWindow3);
+  //   }
+  // else if (rw == EndDeviceLorawanMac::RX2)
+  //   {
+  //     Simulator::Cancel (m_closeSecondWindow);
+  //     Simulator::Cancel (m_continuousReceiveWindow3);
+  //   }
 }
 
 } /* namespace lorawan */
