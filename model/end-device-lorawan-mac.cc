@@ -737,6 +737,15 @@ EndDeviceLorawanMac::CloseFirstReceiveWindow (void)
       break;
     case EndDeviceLoraPhy::RX:
       // PHY is receiving: let it finish. The Receive method will switch it back to SLEEP.
+      // PHY is receiving: let it finish
+      NS_LOG_DEBUG ("PHY is receiving: Receive will handle the result.");
+      
+      if (m_deviceClass == CLASS_C)
+        {
+          NS_LOG_DEBUG (m_deviceCurrentReceiveWindow);
+          ResetReceiveWindows (m_deviceCurrentReceiveWindow);
+          return;
+        }
       break;
     case EndDeviceLoraPhy::SLEEP:
       // PHY has received, and the MAC's Receive already put the device to sleep
@@ -809,7 +818,6 @@ void
 EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
-  NS_LOG_DEBUG ("Closing RW: " << GetDeviceCurrentReceiveWindow ());
 
   Ptr<EndDeviceLoraPhy> phy = m_phy->GetObject<EndDeviceLoraPhy> ();
 
@@ -828,9 +836,12 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
     case EndDeviceLoraPhy::RX:
       // PHY is receiving: let it finish
       NS_LOG_DEBUG ("PHY is receiving: Receive will handle the result.");
-      // TODO reset windows here... 
-      NS_LOG_DEBUG ("Current Receive Window: " << m_deviceCurrentReceiveWindow);
-      ResetReceiveWindows (m_deviceCurrentReceiveWindow);
+      
+      if (m_deviceClass == CLASS_C)
+        {
+          NS_LOG_DEBUG (m_deviceCurrentReceiveWindow);
+          ResetReceiveWindows (m_deviceCurrentReceiveWindow);
+        }
       return;
     case EndDeviceLoraPhy::STANDBY:
       // Turn PHY layer to sleep
@@ -838,7 +849,11 @@ EndDeviceLorawanMac::CloseSecondReceiveWindow (void)
       break;
     }
   
-  SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::NONE);
+  if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC ||
+      GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC2)
+    {
+      SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::NONE);
+    }
 
   if (m_deviceClass == CLASS_A)
     {
