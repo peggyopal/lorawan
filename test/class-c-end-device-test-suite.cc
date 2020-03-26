@@ -557,7 +557,7 @@ ReceiveDownlinkMessageRX1::ReceivedPacketAtScheduler (Ptr<Packet const> packet, 
   
   Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
 
-  Simulator::Schedule (Seconds (0.01), &ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+  Simulator::Schedule (Seconds (0.99794868), &ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
