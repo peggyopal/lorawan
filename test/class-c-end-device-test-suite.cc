@@ -1,7 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This file includes testing for the following components:
- * - ClassCEndDeviceStatus
+ * - ClassCEndDeviceLorawanMac
  *
  * Author:Peggy Anderson <peggy.anderson@usask.ca>
 */
@@ -557,7 +557,7 @@ ReceiveDownlinkMessageRX1::ReceivedPacketAtScheduler (Ptr<Packet const> packet, 
   
   Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
 
-  Simulator::Schedule (Seconds (0.99794868), &ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+  Simulator::Schedule (Seconds (1.0), &ReceiveDownlinkMessageRX1::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
@@ -680,7 +680,7 @@ ReceiveDownlinkMessageRXC2::ReceivedPacketAtScheduler (Ptr<Packet const> packet,
   
   Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
 
-  Simulator::Schedule (Seconds (0.5), &ReceiveDownlinkMessageRXC2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+  Simulator::Schedule (Seconds (1.2), &ReceiveDownlinkMessageRXC2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
@@ -802,7 +802,7 @@ ReceiveDownlinkMessageRX2::ReceivedPacketAtScheduler (Ptr<Packet const> packet, 
   
   Simulator::Cancel (networkScheduler->m_recieveWindowOpportunity);
 
-  Simulator::Schedule (Seconds (1.1), &ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
+  Simulator::Schedule (Seconds (2.0), &ReceiveDownlinkMessageRX2::RescheduleReceiveWindowOpportunity, this, packet, networkScheduler);
 }
 
 void
@@ -1010,7 +1010,7 @@ ClassCEndDeviceLorawanMacTestSuite::ClassCEndDeviceLorawanMacTestSuite ()
   // LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("ClassCEndDeviceLorawanMac", LOG_LEVEL_ALL);
-  // LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+  LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("SimpleGatewayLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
