@@ -598,40 +598,36 @@ EndDeviceLorawanMac::GetNextTransmissionDelay (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  //    Check duty cycle    //
-
-  // Pick a random channel to transmit on
-  std::vector<Ptr<LogicalLoraChannel> > logicalChannels;
-  logicalChannels = m_channelHelper.GetEnabledChannelList ();                 // Use a separate list to do the shuffle
-  //logicalChannels = Shuffle (logicalChannels);
-
-
-  Time waitingTime = Time::Max ();
-
-  // Try every channel
-  std::vector<Ptr<LogicalLoraChannel> >::iterator it;
-  for (it = logicalChannels.begin (); it != logicalChannels.end (); ++it)
+  // This is a new packet from APP; it can not be sent until the end of the
+  // second receive window (if the second recieve window has not closed yet)
+  if (!m_retxParams.waitingAck)
     {
-      // Pointer to the current channel
-      Ptr<LogicalLoraChannel> logicalChannel = *it;
-      double frequency = logicalChannel->GetFrequency ();
+      if (!m_closeFirstWindow.IsExpired () ||
+          !m_closeSecondWindow.IsExpired () ||
+          !m_secondReceiveWindow.IsExpired () )
+        {
+          NS_LOG_WARN ("Attempting to send when there are receive windows:" <<
+                       " Transmission postponed.");
+          // Compute the duration of a single symbol for the second receive window DR
+          double tSym = pow (2, GetSfFromDataRate (GetSecondReceiveWindowDataRate ())) / GetBandwidthFromDataRate (GetSecondReceiveWindowDataRate ());
+          // Compute the closing time of the second receive window
+          Time endSecondRxWindow = Time(m_secondReceiveWindow.GetTs()) + Seconds (m_receiveWindowDurationInSymbols*tSym);
 
-      waitingTime = std::min (waitingTime, m_channelHelper.GetWaitingTime (logicalChannel));
-
-      NS_LOG_DEBUG ("Waiting time before the next transmission in channel with frequecy " <<
-                    frequency << " is = " << waitingTime.GetSeconds () << ".");
+          NS_LOG_DEBUG("Duration until endSecondRxWindow for new transmission:" << (endSecondRxWindow - Simulator::Now()).GetSeconds());
+          waitingTime = std::max (waitingTime, endSecondRxWindow - Simulator::Now());
+        }
     }
-
-  if (!m_closeFirstWindow.IsExpired () || !m_closeSecondWindow.IsExpired () || !m_secondReceiveWindow.IsExpired () )
+  // This is a retransmitted packet, it can not be sent until the end of
+  // ACK_TIMEOUT (this timer starts when the second receive window was open)
+  else
     {
-      NS_LOG_WARN ("Attempting to send when there are receive windows:" <<
-                   " Transmission postponed.");
+      double ack_timeout = m_uniformRV->GetValue (1,3);
+      // Compute the duration until ACK_TIMEOUT (It may be a negative number, but it doesn't matter.)
+      Time retransmitWaitingTime = Time(m_secondReceiveWindow.GetTs()) - Simulator::Now() + Seconds (ack_timeout);
 
-      //Calculate the duration of a single symbol for the second receive window DR
-      double tSym = pow (2, GetSfFromDataRate (GetSecondReceiveWindowDataRate ())) / GetBandwidthFromDataRate ( GetSecondReceiveWindowDataRate ());
-
-      Time endSecondRxWindow = (m_receiveDelay2 + Seconds (m_receiveWindowDurationInSymbols*tSym));
-      waitingTime = std::max (waitingTime, endSecondRxWindow);
+      NS_LOG_DEBUG("ack_timeout:" << ack_timeout <<
+                   " retransmitWaitingTime:" << retransmitWaitingTime.GetSeconds());
+      waitingTime = std::max (waitingTime, retransmitWaitingTime);
     }
 
   return waitingTime;
