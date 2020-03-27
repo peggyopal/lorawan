@@ -398,12 +398,12 @@ ClassCEndDeviceLorawanMac::ResetReceiveWindows (enum ClassCReceiveWindows rw)
       Simulator::Cancel (m_secondReceiveWindow);
       Simulator::Cancel (m_continuousReceiveWindow3);
     }
-  // else if (rw == EndDeviceLorawanMac::RXC2)
-  //   {
-  //     Simulator::Cancel (m_closeContinuousWindow);
-  //     Simulator::Cancel (m_secondReceiveWindow);
-  //     Simulator::Cancel (m_continuousReceiveWindow3);
-  //   }
+  else if (rw == EndDeviceLorawanMac::RXC2)
+    {
+      Simulator::Cancel (m_closeContinuousWindow);
+      Simulator::Cancel (m_secondReceiveWindow);
+      Simulator::Cancel (m_continuousReceiveWindow3);
+    }
   // else if (rw == EndDeviceLorawanMac::RX2)
   //   {
   //     Simulator::Cancel (m_closeSecondWindow);
