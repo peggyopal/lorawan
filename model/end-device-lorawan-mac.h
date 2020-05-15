@@ -506,6 +506,8 @@ protected:
    * the channel list.
    */
   Ptr<UniformRandomVariable> m_uniformRV;
+
+  /** 
    * The frequency to listen on for the second receive window.
    */
   double m_secondReceiveWindowFrequency;

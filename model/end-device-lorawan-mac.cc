@@ -597,6 +597,26 @@ Time
 EndDeviceLorawanMac::GetNextTransmissionDelay (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
+  
+  // Pick a random channel to transmit on
+  std::vector<Ptr<LogicalLoraChannel> > logicalChannels;
+  logicalChannels = m_channelHelper.GetEnabledChannelList ();                 // Use a separate list to do the shuffle
+
+  Time waitingTime = Time::Max ();
+
+  // Try every channel
+  std::vector<Ptr<LogicalLoraChannel> >::iterator it;
+  for (it = logicalChannels.begin (); it != logicalChannels.end (); ++it)
+    {
+      // Pointer to the current channel
+      Ptr<LogicalLoraChannel> logicalChannel = *it;
+      double frequency = logicalChannel->GetFrequency ();
+
+      waitingTime = std::min (waitingTime, m_channelHelper.GetWaitingTime (logicalChannel));
+
+      NS_LOG_DEBUG ("Waiting time before the next transmission in channel with frequecy " <<
+                    frequency << " is = " << waitingTime.GetSeconds () << ".");
+    }
 
   // This is a new packet from APP; it can not be sent until the end of the
   // second receive window (if the second recieve window has not closed yet)
