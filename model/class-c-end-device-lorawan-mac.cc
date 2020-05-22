@@ -333,6 +333,7 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
         {
           // This should only be true when the device is being initialized
           RxDelay = Simulator::GetMaximumSimulationTime ();
+          m_numContinuousReceiveWindows = 0;
           NS_LOG_DEBUG ("RxDelay: " << RxDelay);
         }
 
