@@ -165,6 +165,25 @@ EndDeviceLorawanMac::Send (Ptr<Packet> packet)
 {
   NS_LOG_FUNCTION (this << packet);
 
+  if (m_deviceClass == CLASS_C) 
+    {
+      EndDeviceLoraPhy::State deviceState;
+      deviceState = m_phy->GetObject<EndDeviceLoraPhy> ()->GetState ();
+      switch (deviceState)
+        {
+          case EndDeviceLoraPhy::STANDBY:
+            NS_LOG_DEBUG ("Device is in STANDBY.");
+          case EndDeviceLoraPhy::TX:
+            NS_LOG_DEBUG ("Device is in TX and cannot send, thus dropping packet.");
+            return;
+          case EndDeviceLoraPhy::RX:
+            NS_LOG_DEBUG ("Device is in RX and cannot send, thus dropping packet.");
+            return;
+          case EndDeviceLoraPhy::SLEEP:
+            NS_LOG_DEBUG ("Device is in SLEEP.");
+        }
+    }
+
   // Check that payload length is below the allowed maximum
   if (packet->GetSize () > m_maxAppPayloadForDataRate.at (m_dataRate))
     {
