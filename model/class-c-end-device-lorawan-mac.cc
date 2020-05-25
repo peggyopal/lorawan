@@ -64,6 +64,10 @@ ClassCEndDeviceLorawanMac::ClassCEndDeviceLorawanMac ()
   m_closeContinuousWindow = EventId ();
   m_closeContinuousWindow.Cancel ();
 
+  // this->ScheduleEvents(Seconds(0) - Seconds(1), m_receiveDelay1, m_receiveDelay2);
+
+  // Schedule the opening of the first occurence of the continuous receive window
+  SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::RXC);
   m_continuousReceiveWindow1 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow, 
                                                  this);
 }
@@ -319,10 +323,11 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
 
   Time RxDelay = Time(0);
 
-  m_numContinuousReceiveWindows += 1;
-
+  NS_LOG_DEBUG(m_numContinuousReceiveWindows);
   Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenSecondReceiveWindow,
                           this);
+
+  m_numContinuousReceiveWindows += 1;
 
   if (m_numContinuousReceiveWindows == 1)
     {
@@ -332,8 +337,7 @@ ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow (void)
       if (RxDelay.IsNegative ())
         {
           // This should only be true when the device is being initialized
-          RxDelay = Simulator::GetMaximumSimulationTime ();
-          m_numContinuousReceiveWindows = 0;
+          RxDelay = Seconds (1) - Seconds (0.000000001);
           NS_LOG_DEBUG ("RxDelay: " << RxDelay);
         }
 
@@ -382,8 +386,9 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   // Schedule the opening of the first occurence of the continuous receive window
   SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::RXC);
   m_numContinuousReceiveWindows = 0;
-  m_continuousReceiveWindow1 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                                                       this);  
+  m_continuousReceiveWindow1 = Simulator::Schedule (Seconds (0.2), 
+                                                    &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                    this);  
 }
 
 void

@@ -173,6 +173,7 @@ EndDeviceLorawanMac::Send (Ptr<Packet> packet)
         {
           case EndDeviceLoraPhy::STANDBY:
             NS_LOG_DEBUG ("Device is in STANDBY.");
+            break;
           case EndDeviceLoraPhy::TX:
             NS_LOG_DEBUG ("Device is in TX and cannot send, thus dropping packet.");
             return;
@@ -181,6 +182,7 @@ EndDeviceLorawanMac::Send (Ptr<Packet> packet)
             return;
           case EndDeviceLoraPhy::SLEEP:
             NS_LOG_DEBUG ("Device is in SLEEP.");
+            break;
         }
     }
 
@@ -833,11 +835,14 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
   // (LoraWAN specification)
   if (m_deviceClass == CLASS_A || 
       (m_deviceClass == CLASS_C && m_secondReceiveWindow.IsExpired () && 
-        (m_numContinuousReceiveWindows == 1 || m_numContinuousReceiveWindows == 2)
+        (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC2 || 
+         GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RX2)
       )
      )
     {
       Time delay = Seconds (m_receiveWindowDurationInSymbols*tSym);
+      NS_LOG_DEBUG("Am I here?");
+      NS_LOG_DEBUG ("m_numContinuousReceiveWindows = " << m_numContinuousReceiveWindows);
 
       // if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC)
       //   {
