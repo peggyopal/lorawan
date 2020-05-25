@@ -386,9 +386,8 @@ ClassCEndDeviceLorawanMac::TxFinished (Ptr<const Packet> packet)
   // Schedule the opening of the first occurence of the continuous receive window
   SetDeviceCurrentReceiveWindow(EndDeviceLorawanMac::RXC);
   m_numContinuousReceiveWindows = 0;
-  m_continuousReceiveWindow1 = Simulator::Schedule (Seconds (0.2), 
-                                                    &ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
-                                                    this);  
+  m_continuousReceiveWindow1 = Simulator::ScheduleNow (&ClassCEndDeviceLorawanMac::OpenContinuousReceiveWindow,
+                                                       this);  
 }
 
 void
