@@ -402,30 +402,30 @@ ClassCEndDeviceLorawanMac::ResetReceiveWindows (enum ClassCReceiveWindows rw)
   
   if (rw == EndDeviceLorawanMac::RXC)
     {
-      Simulator::Cancel (m_closeContinuousWindow);
-      Simulator::Cancel (m_firstReceiveWindow);
-      Simulator::Cancel (m_continuousReceiveWindow2);
-      Simulator::Cancel (m_secondReceiveWindow);
-      Simulator::Cancel (m_continuousReceiveWindow3);
+      CancelReceiveWindows ();
     }
   else if (rw == EndDeviceLorawanMac::RX1)
     {
-      Simulator::Cancel (m_closeFirstWindow);
-      Simulator::Cancel (m_continuousReceiveWindow2);
-      Simulator::Cancel (m_secondReceiveWindow);
-      Simulator::Cancel (m_continuousReceiveWindow3);
+      CancelReceiveWindows ();
     }
   else if (rw == EndDeviceLorawanMac::RXC2)
     {
-      Simulator::Cancel (m_closeContinuousWindow);
-      Simulator::Cancel (m_secondReceiveWindow);
-      Simulator::Cancel (m_continuousReceiveWindow3);
+      CancelReceiveWindows ();
     }
   else if (rw == EndDeviceLorawanMac::RX2)
     {
-      Simulator::Cancel (m_closeSecondWindow);
-      Simulator::Cancel (m_continuousReceiveWindow3);
+      CancelReceiveWindows ();
     }
+}
+
+void 
+ClassCEndDeviceLorawanMac::CancelReceiveWindows (void)
+{
+  Simulator::Cancel (m_closeContinuousWindow);
+  Simulator::Cancel (m_firstReceiveWindow);
+  Simulator::Cancel (m_continuousReceiveWindow2);
+  Simulator::Cancel (m_secondReceiveWindow);
+  Simulator::Cancel (m_continuousReceiveWindow3);
 }
 
 } /* namespace lorawan */

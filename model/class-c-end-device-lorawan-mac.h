@@ -68,6 +68,11 @@ public:
   virtual void TxFinished (Ptr<const Packet> packet);
 
   virtual void ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw);
+  
+  /**
+   * Cancel all receive windows
+   */
+  virtual void CancelReceiveWindows (void);
 
 protected:
   /**

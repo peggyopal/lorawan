@@ -181,7 +181,12 @@ EndDeviceLorawanMac::Send (Ptr<Packet> packet)
             NS_LOG_DEBUG ("Device is in RX and cannot send, thus dropping packet.");
             return;
           case EndDeviceLoraPhy::SLEEP:
-            NS_LOG_DEBUG ("Device is in SLEEP.");
+            NS_LOG_DEBUG ("Device is in SLEEP, wakeup device and reset any and all receive windows.");
+            m_phy->GetObject<EndDeviceLoraPhy> ()->SwitchToStandby ();
+            CancelReceiveWindows ();
+            // m_closeFirstWindow.Cancel ();
+            // m_closeSecondWindow.Cancel ();
+            // m_secondReceiveWindow.Cancel ();
             break;
         }
     }
@@ -841,8 +846,6 @@ EndDeviceLorawanMac::OpenSecondReceiveWindow (void)
      )
     {
       Time delay = Seconds (m_receiveWindowDurationInSymbols*tSym);
-      NS_LOG_DEBUG("Am I here?");
-      NS_LOG_DEBUG ("m_numContinuousReceiveWindows = " << m_numContinuousReceiveWindows);
 
       // if (GetDeviceCurrentReceiveWindow () == EndDeviceLorawanMac::RXC)
       //   {
@@ -943,9 +946,9 @@ EndDeviceLorawanMac::GetDeviceClass ()
   return m_deviceClass;
 }
 
-void 
-EndDeviceLorawanMac::ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw)
-{}
+// void 
+// EndDeviceLorawanMac::ResetReceiveWindows (EndDeviceLorawanMac::ClassCReceiveWindows rw)
+// {}
 
 void
 EndDeviceLorawanMac::SetDeviceCurrentReceiveWindow (EndDeviceLorawanMac::ClassCReceiveWindows rw)

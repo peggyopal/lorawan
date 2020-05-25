@@ -84,6 +84,11 @@ public:
    */
   virtual void OnRxClassParamSetupReq (Ptr<RxParamSetupReq> rxParamSetupReq);
 
+  /**
+   * Cancel all receive windows
+   */
+  virtual void CancelReceiveWindows (void) {};
+
 }; /* ClassAEndDeviceLorawanMac */
 } /* namespace lorawan */
 } /* namespace ns3 */

@@ -154,7 +154,7 @@ public:
 
   virtual enum DeviceClass GetDeviceClass (void);
 
-  virtual void ResetReceiveWindows (enum ClassCReceiveWindows rw);
+  virtual void ResetReceiveWindows (enum ClassCReceiveWindows rw) {};
 
   void SetDeviceCurrentReceiveWindow (enum ClassCReceiveWindows rw);
 
@@ -372,6 +372,11 @@ public:
    */
   void OnNewChannelReq (uint8_t chIndex, double frequency, uint8_t minDataRate,
                         uint8_t maxDataRate);
+
+  /**
+   * Cancel all receive windows
+   */
+  virtual void CancelReceiveWindows (void) {};
 
   ////////////////////////////////////
   // Logical channel administration //
