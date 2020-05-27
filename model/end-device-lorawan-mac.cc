@@ -184,9 +184,6 @@ EndDeviceLorawanMac::Send (Ptr<Packet> packet)
             NS_LOG_DEBUG ("Device is in SLEEP, wakeup device and reset any and all receive windows.");
             m_phy->GetObject<EndDeviceLoraPhy> ()->SwitchToStandby ();
             CancelReceiveWindows ();
-            // m_closeFirstWindow.Cancel ();
-            // m_closeSecondWindow.Cancel ();
-            // m_secondReceiveWindow.Cancel ();
             break;
         }
     }
