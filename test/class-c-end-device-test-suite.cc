@@ -371,7 +371,7 @@ ThirdRxcStaysOpenAfterRx2::~ThirdRxcStaysOpenAfterRx2 ()
 void
 ThirdRxcStaysOpenAfterRx2::NumberOfOpenSecondReceiveWindowCalls (int oldValue, int newValue)
 {
-  NS_LOG_DEBUG ("Second (or continuous) receive window was opened")
+  NS_LOG_DEBUG ("Second (or continuous) receive window was opened");
   m_numContinuousReceiveWindows = newValue;
 }
 
